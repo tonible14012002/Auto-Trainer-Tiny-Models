@@ -1,0 +1,1 @@
+export { UserBadge, type UserBadgeProps } from './UserBadge';

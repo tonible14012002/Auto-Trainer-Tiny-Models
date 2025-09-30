@@ -1,0 +1,1 @@
+export { AudioRecorderDialog } from './AudioRecorderDialog';
