@@ -223,6 +223,7 @@ export const ModelListPanel = memo((props: any) => {
                   <SidebarLabel isHighlighted={isCategoryHighlighted}>
                     <Icon />
                     {category}
+                    {models.length > 0 ? `(${models.length})` : null}
                   </SidebarLabel>
                 </AccordionTrigger>
                 <AccordionContent className="pb-3">

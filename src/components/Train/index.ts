@@ -1,2 +1,2 @@
-export { TrainerCreateView } from "./TrainerCreateView";
 export { TrainerCreatePopup } from "./TrainerCreatePopup";
+export { TrainerDetailView } from "./TrainerDetailView";

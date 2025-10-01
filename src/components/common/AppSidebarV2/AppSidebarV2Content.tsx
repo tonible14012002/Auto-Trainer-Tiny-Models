@@ -1,29 +1,25 @@
 "use client";
 
-import { memo, useState, type PropsWithChildren } from "react";
+import { memo, type PropsWithChildren } from "react";
 import { ModelListPanel } from "./ModelListPanel";
 import { BuildPanel } from "./BuildPanel";
 import { AppHeaderLogo } from "../AppHeader/AppHeaderLogo";
 import { Button } from "@/components/ui/button";
 import { SparklesIcon, WrenchIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AppSidebarMode, SIDEBAR_MODE, useAppSidebarContextV2 } from "./AppSidebarProviderV2";
 
 interface AppSidebarV2ContentProps {
   className?: string;
   isMobile?: boolean;
 }
 
-const PANEL_TABS = {
-  MODELS: "models",
-  BUILD: "Build",
-};
-
 export const AppSidebarV2Content = memo((props: AppSidebarV2ContentProps) => {
   const { isMobile } = props;
+  const { mode, setMode } = useAppSidebarContextV2();
 
-  const [panelVal, setPanelVal] = useState(PANEL_TABS.MODELS);
   const onPanelChange = (val: string) => {
-    setPanelVal(val);
+    setMode(val as AppSidebarMode);
   };
 
   return (
@@ -37,20 +33,20 @@ export const AppSidebarV2Content = memo((props: AppSidebarV2ContentProps) => {
         <div className="w-[60px] border-r border-border min-w-[60px]">
           <div className="flex flex-col items-center">
             <PanelButton
-              isActive={panelVal === PANEL_TABS.MODELS}
+              isActive={mode === SIDEBAR_MODE.MODELS}
               onClick={() =>
                 onPanelChange(
-                  panelVal === PANEL_TABS.MODELS ? "" : PANEL_TABS.MODELS
+                  mode === SIDEBAR_MODE.MODELS ? "" : SIDEBAR_MODE.MODELS
                 )
               }
             >
               <SparklesIcon className="size-4" />
             </PanelButton>
             <PanelButton
-              isActive={panelVal === PANEL_TABS.BUILD}
+              isActive={mode === SIDEBAR_MODE.TRAINERS}
               onClick={() =>
                 onPanelChange(
-                  panelVal === PANEL_TABS.BUILD ? "" : PANEL_TABS.BUILD
+                  mode === SIDEBAR_MODE.TRAINERS ? "" : SIDEBAR_MODE.TRAINERS
                 )
               }
             >
@@ -58,7 +54,7 @@ export const AppSidebarV2Content = memo((props: AppSidebarV2ContentProps) => {
             </PanelButton>
           </div>
         </div>
-        {panelVal === PANEL_TABS.MODELS && (
+        {mode === SIDEBAR_MODE.MODELS && (
           <ModelListPanel
             isMobile={isMobile}
             className={cn("flex-1", {
@@ -66,7 +62,7 @@ export const AppSidebarV2Content = memo((props: AppSidebarV2ContentProps) => {
             })}
           />
         )}
-        {panelVal === PANEL_TABS.BUILD && (
+        {mode === SIDEBAR_MODE.TRAINERS && (
           <BuildPanel
             isMobile={isMobile}
             className={cn("flex-1", {

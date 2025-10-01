@@ -1,6 +1,9 @@
 "use client";
 
 import { useModels } from "@/provider/ModelsProvider";
+import { useParams, usePathname } from "next/navigation";
+import { TrainerParams } from "@/constants/routes";
+import { TrainerBreadcrumb } from "./TrainerBreadcrumb";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,6 +19,15 @@ interface AppBreadcrumbProps {
 
 export function AppBreadcrumb({ className }: AppBreadcrumbProps) {
   const { selectedModel } = useModels();
+  const pathname = usePathname();
+  const params = useParams<TrainerParams>();
+
+  // Check if current page is a trainer page
+  const isTrainerPage = pathname?.startsWith("/train/");
+
+  if (isTrainerPage && params?.trainerId) {
+    return <TrainerBreadcrumb className={className} />;
+  }
 
   if (!selectedModel) {
     return null;

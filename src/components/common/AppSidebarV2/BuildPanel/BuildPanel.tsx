@@ -9,7 +9,8 @@ import { PlusIcon } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { useRouter } from "next/navigation";
 import { useFetchTrainers } from "@/hooks/trainer/useFetchTrainers";
-import { TrainerItem } from "./TrainerItem";
+import { TrainerList } from "./TrainerList";
+import { TrainerCreatePopup } from "@/components/Train/TrainerCreatePopup";
 
 interface BuildPanelProps {
   className?: string;
@@ -21,12 +22,12 @@ export const BuildPanel = memo((props: BuildPanelProps) => {
   const router = useRouter();
   const { data, isLoading, error } = useFetchTrainers();
 
-  const handleCreateClick = () => {
-    router.push(ROUTES.TRAIN_CREATE);
+  const handleTrainerClick = (trainer: { id: number }) => {
+    router.push(ROUTES.TRAIN_DETAIL(trainer.id));
   };
 
-  const handleTrainerClick = (trainer: { id: number }) => {
-    router.push(`${ROUTES.TRAIN_DETAIL}/${trainer.id}`);
+  const handleTrainerCreated = (trainerId: number) => {
+    router.push(ROUTES.TRAIN_DETAIL(trainerId));
   };
 
   return (
@@ -38,36 +39,23 @@ export const BuildPanel = memo((props: BuildPanelProps) => {
     >
       <div className="space-y-3">
         <BuildSearchBar />
-        <Button className="w-full" size="default" onClick={handleCreateClick}>
-          <PlusIcon className="size-4 mr-2" />
-          New AI Training Process
-        </Button>
+        <TrainerCreatePopup
+          onSuccess={handleTrainerCreated}
+          trigger={
+            <Button className="w-full" size="default">
+              <PlusIcon className="size-4 mr-2" />
+              New AI Training Process
+            </Button>
+          }
+        />
       </div>
       <ScrollArea className="flex-1 my-4 -mx-4 px-4 min-h-0">
-        <div className="space-y-2">
-          {isLoading && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              Loading trainers...
-            </p>
-          )}
-          {error && (
-            <p className="text-sm text-destructive text-center py-4">
-              Failed to load trainers
-            </p>
-          )}
-          {data?.data && data.data.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No trainers found
-            </p>
-          )}
-          {data?.data?.map((trainer) => (
-            <TrainerItem
-              key={trainer.id}
-              trainer={trainer}
-              onClick={handleTrainerClick}
-            />
-          ))}
-        </div>
+        <TrainerList
+          trainers={data?.data}
+          isLoading={isLoading}
+          error={error}
+          onClick={handleTrainerClick}
+        />
       </ScrollArea>
     </div>
   );
