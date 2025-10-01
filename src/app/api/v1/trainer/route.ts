@@ -1,9 +1,10 @@
 import { NextRequest } from "next/server";
 import Ajv, { JSONSchemaType } from "ajv";
-import { TrainerController, TrainerCreateInput } from "@/_backend/controller/trainer.controller";
+import { TrainerController } from "@/_backend/controller/trainer.controller";
+import { CreateTrainerRequest, TrainerDetail } from "@/schema/schema";
+import { ResponseWithData } from "@/schema/response";
 
-type InputRequestType = TrainerCreateInput;
-const createTrainerSchema: JSONSchemaType<InputRequestType> = {
+const createTrainerSchema: JSONSchemaType<CreateTrainerRequest> = {
   type: "object",
   properties: {
     name: { type: "string" },
@@ -16,14 +17,14 @@ const createTrainerSchema: JSONSchemaType<InputRequestType> = {
 export async function POST(req: NextRequest) {
   const validator = new Ajv().compile(createTrainerSchema);
   try {
-    const postData = (await req.json()) as InputRequestType;
+    const postData = (await req.json()) as CreateTrainerRequest;
     if (validator(postData)) {
       const trainer = await TrainerController.createTrainer(postData);
 
       return Response.json(
         {
           data: trainer,
-        },
+        } as ResponseWithData<TrainerDetail>,
         {
           status: 201,
         }
@@ -59,7 +60,10 @@ export async function GET(req: NextRequest) {
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
     });
-    return Response.json({ data: trainers }, { status: 200 });
+    return Response.json(
+      { data: trainers } as ResponseWithData<TrainerDetail[]>,
+      { status: 200 }
+    );
   } catch (e) {
     console.error(
       "Error details:",

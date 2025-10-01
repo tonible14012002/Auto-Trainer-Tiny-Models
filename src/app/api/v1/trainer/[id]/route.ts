@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { TrainerController } from "@/_backend/controller/trainer.controller";
+import { TrainerDetail } from "@/schema/schema";
+import { ResponseWithData } from "@/schema/response";
 
 export async function GET(
   req: NextRequest,
@@ -20,7 +22,10 @@ export async function GET(
     }
 
     const trainer = await TrainerController.getTrainer(trainerId);
-    return Response.json({ data: trainer }, { status: 200 });
+    return Response.json(
+      { data: trainer } as ResponseWithData<TrainerDetail>,
+      { status: 200 }
+    );
   } catch (e) {
     console.error(
       "Error details:",

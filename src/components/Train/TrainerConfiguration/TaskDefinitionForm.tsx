@@ -1,27 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form } from '@/components/ui/form';
+import { FormTextArea } from '@/components/common/Form/FormTextArea';
+import { Input } from '@/components/ui/input';
 
-export interface TaskDefinitionData {
-  taskType: string;
-  modelPurpose: string;
-  dataType: string;
-  labels: Array<{
-    name: string;
-    explanation: string;
-    examples: string;
-  }>;
-  includeOOS: boolean;
-}
+const labelSchema = z.object({
+  name: z.string().min(1, "Label name is required"),
+  explanation: z.string().min(1, "Explanation is required"),
+  examples: z.string().min(1, "Examples are required"),
+});
+
+const taskDefinitionSchema = z.object({
+  taskType: z.string(),
+  modelPurpose: z.string().min(1, "Model purpose is required"),
+  dataType: z.string().min(1, "Data type description is required"),
+  labels: z.array(labelSchema).min(1, "At least one label is required"),
+  includeOOS: z.boolean(),
+});
+
+export type TaskDefinitionData = z.infer<typeof taskDefinitionSchema>;
 
 interface TaskDefinitionFormProps {
   onBack: () => void;
@@ -34,62 +42,58 @@ export const TaskDefinitionForm: React.FC<TaskDefinitionFormProps> = ({
   onSave,
   initialData
 }) => {
-  const [formData, setFormData] = useState<TaskDefinitionData>(
-    initialData || {
+  const formInstance = useForm<TaskDefinitionData>({
+    defaultValues: initialData || {
       taskType: 'text-classification',
       modelPurpose: '',
       dataType: '',
       labels: [{ name: '', explanation: '', examples: '' }],
       includeOOS: false,
-    }
-  );
+    },
+    resolver: zodResolver(taskDefinitionSchema),
+  });
+
+  console.log(formInstance.formState.errors)
+
+  const { fields, append, remove } = useFieldArray({
+    control: formInstance.control,
+    name: 'labels',
+  });
 
   const handleAddLabel = () => {
-    setFormData({
-      ...formData,
-      labels: [...formData.labels, { name: '', explanation: '', examples: '' }],
-    });
+    append({ name: '', explanation: '', examples: '' });
   };
 
   const handleRemoveLabel = (index: number) => {
-    const newLabels = formData.labels.filter((_, i) => i !== index);
-    setFormData({ ...formData, labels: newLabels });
+    if (fields.length > 1) {
+      remove(index);
+    }
   };
 
-  const handleLabelChange = (index: number, field: string, value: string) => {
-    const newLabels = [...formData.labels];
-    newLabels[index] = { ...newLabels[index], [field]: value };
-    setFormData({ ...formData, labels: newLabels });
-  };
-
-  const handleSave = () => {
-    onSave(formData);
-  };
+  const handleSubmit = formInstance.handleSubmit((data) => {
+    onSave(data);
+  });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h2 className="text-xl font-semibold">Task Definition</h2>
-          <p className="text-sm text-muted-foreground">Define the task type, model purpose, and labels</p>
+    <Form {...formInstance}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mt-4">
+          <Button type="button" variant="ghost" size="icon" onClick={onBack}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h2 className="text-xl font-semibold">Task Definition</h2>
+          </div>
         </div>
-      </div>
 
-      {/* Task Type */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Task Type</CardTitle>
-          <CardDescription>Select the type of task for this trainer</CardDescription>
-        </CardHeader>
-        <CardContent>
+        {/* Task Type */}
+        <div className="space-y-3 mt-4">
+          <h3 className="text-base font-semibold">Task Type</h3>
           <Select
             disabled
-            value={formData.taskType}
-            onValueChange={(value) => setFormData({ ...formData, taskType: value })}
+            value={formInstance.watch('taskType')}
+            onValueChange={(value) => formInstance.setValue('taskType', value)}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select task type" />
@@ -98,112 +102,117 @@ export const TaskDefinitionForm: React.FC<TaskDefinitionFormProps> = ({
               <SelectItem value="text-classification">Text Classification</SelectItem>
             </SelectContent>
           </Select>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Model Description */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Model Description</CardTitle>
-          <CardDescription>Describe the purpose and data for this model</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>What is it used for?</Label>
-            <Textarea
-              placeholder="Describe the purpose of this model..."
-              rows={3}
-              value={formData.modelPurpose}
-              onChange={(e) => setFormData({ ...formData, modelPurpose: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Which kind of data it will be run on?</Label>
-            <Textarea
-              placeholder="Describe the type of data this model will process..."
-              rows={3}
-              value={formData.dataType}
-              onChange={(e) => setFormData({ ...formData, dataType: e.target.value })}
-            />
-          </div>
-        </CardContent>
-      </Card>
+        {/* Model Description */}
+        <div className="space-y-4 mt-4">
+          <FormTextArea
+            name="modelPurpose"
+            label="Model Purpose"
+            placeholder="Detect if a given user message having a payment intent or not..."
+            rows={3}
+          />
+          <FormTextArea
+            name="dataType"
+            label="Input Data Type"
+            placeholder="User messages in plain text format, typically conversational queries..."
+            rows={3}
+          />
+        </div>
 
-      {/* Label Declaration */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Label Declaration</CardTitle>
-          <CardDescription>Define labels with explanations and examples</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            {formData.labels.map((label, index) => (
-              <div key={index} className="border rounded-lg p-4 space-y-4">
-                <div className="flex items-center justify-between gap-4">
-                  <Input
-                    placeholder="Label name"
-                    className="flex-1"
-                    value={label.name}
-                    onChange={(e) => handleLabelChange(index, 'name', e.target.value)}
-                  />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleRemoveLabel(index)}
-                    disabled={formData.labels.length === 1}
-                  >
-                    Remove
-                  </Button>
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <Label>Explanation</Label>
-                  <Textarea
-                    placeholder="Explain what this label means..."
-                    rows={2}
-                    value={label.explanation}
-                    onChange={(e) => handleLabelChange(index, 'explanation', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Few-shot Examples</Label>
-                  <Textarea
-                    placeholder="Provide examples of data for this label..."
-                    rows={3}
-                    value={label.examples}
-                    onChange={(e) => handleLabelChange(index, 'examples', e.target.value)}
-                  />
-                </div>
-              </div>
-            ))}
+        {/* Label Declaration */}
+        <div className="space-y-3 mt-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold">Label Declaration</h3>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleAddLabel}
+              className="h-8 w-8"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
           </div>
 
-          <Button variant="outline" className="w-full" onClick={handleAddLabel}>
-            Add New Label
-          </Button>
+          <Accordion type="multiple" className="space-y-2">
+            {fields.map((field, index) => {
+              const labelName = formInstance.watch(`labels.${index}.name`);
 
-          <Separator />
+              return (
+                <AccordionItem
+                  key={field.id}
+                  value={`label-${index}`}
+                  className="border rounded-lg overflow-hidden border-b-0"
+                >
+                  <div className="flex items-center bg-muted/30 hover:bg-muted/50 w-full">
+                    <Input
+                      value={labelName?.toUpperCase() || ''}
+                      onChange={(e) => {
+                        const upperValue = e.target.value.toUpperCase();
+                        formInstance.setValue(`labels.${index}.name`, upperValue);
+                      }}
+                      placeholder="LABEL_NAME"
+                      className="flex-1 font-mono text-sm h-10 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 px-3"
+                    />
+                    <AccordionTrigger className="px-2 py-2 hover:no-underline w-auto">
+                      <span className="sr-only">Toggle details</span>
+                    </AccordionTrigger>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveLabel(index)}
+                      disabled={fields.length === 1}
+                      className="h-8 w-8 mr-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-4">
+                      <FormTextArea
+                        name={`labels.${index}.explanation`}
+                        label="Label Definition"
+                        placeholder="Messages that express intent to make a payment, pay bills, transfer money, or complete transactions..."
+                        rows={2}
+                      />
+                      <FormTextArea
+                        name={`labels.${index}.examples`}
+                        label="Examples (Few Shots)"
+                        placeholder="I want to pay my electricity bill&#10;Can I transfer $100 to John?&#10;How do I make a payment?"
+                        rows={3}
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+
+          <Separator className="my-4" />
 
           <div className="flex items-center space-x-2">
             <Checkbox
               id="oos-toggle"
-              checked={formData.includeOOS}
+              checked={formInstance.watch('includeOOS')}
               onCheckedChange={(checked) =>
-                setFormData({ ...formData, includeOOS: checked === true })
+                formInstance.setValue('includeOOS', checked === true)
               }
             />
             <Label htmlFor="oos-toggle" className="cursor-pointer">
-              Should it run on OOS (Out of distribution) - open intent text?
+              Include Out-of-Scope (OOS) detection
             </Label>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={onBack}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
-      </div>
-    </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4">
+          <Button type="button" variant="outline" onClick={onBack}>Cancel</Button>
+          <Button type="submit">Save</Button>
+        </div>
+      </form>
+    </Form>
   );
 };

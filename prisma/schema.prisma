@@ -17,4 +17,105 @@ model Trainer {
   description       String
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  configs TrainerConfig[]
+}
+
+
+model TrainerConfig {
+  id                Int       @id @default(autoincrement())
+  trainerId        Int       @map("trainer_id")
+
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  activated_at DateTime? @map("activated_at") @db.Timestamptz(6)
+  
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  taskType String  @map("task_type")
+  taskDescription String  @map("task_description")
+  domainDescription String  @map("domain_description")
+  labelsConfig Json  @map("label_config")
+
+  refinedTaskDescription String?  @map("refined_task_description")
+  refinedDomainDescription String?  @map("refined_domain_description")
+  refinedLabelsConfig Json?  @map("refined_label_config")
+
+  budgetLimit Decimal? @map("budget_limit")
+  budgetUsed Decimal @default(0) @map("budget_used")
+
+  pipeline TrainerPipeline?
+}
+
+model TrainerPipeline {
+  id               Int       @id @default(autoincrement())
+  trainerConfigId Int @unique @map("trainer_config_id")
+  // trainerId Int       @map("trainer_id")
+
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  trainerConfig TrainerConfig @relation(fields: [trainerConfigId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  trainingJobs TrainingJob[]
+  datasetGenerationJobs DatasetGenerationJob[]
+  trainerEvaluations TrainerEvaluation[]
+  trainerDatasets TrainerDataset[]
+}
+
+model TrainingJob {
+  id              Int       @id @default(autoincrement())
+  trainerPipelineId Int       @map("trainer_pipeline_id")
+  startAt    DateTime  @map("start_at") @db.Timestamptz(6)
+  endAt      DateTime? @map("end_at") @db.Timestamptz(6)
+  status     String
+
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  trainerPipeline TrainerPipeline @relation(fields: [trainerPipelineId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model TrainerDataset {
+  id             Int       @id @default(autoincrement())
+  trainerPipelineId Int       @map("trainer_pipeline_id")
+
+  filePath String @map("file_path")
+  fileSize Int @map("file_size")
+  fileType String @map("file_type")
+  recordCount Int @map("record_count")
+
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  generationJob DatasetGenerationJob[]
+  trainerPipeline TrainerPipeline @relation(fields: [trainerPipelineId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model DatasetGenerationJob {
+  id              Int       @id @default(autoincrement())
+  trainerPipelineId Int       @map("trainer_pipeline_id")
+  startAt    DateTime  @map("start_at") @db.Timestamptz(6)
+  endAt      DateTime? @map("end_at") @db.Timestamptz(6)
+  status     String
+  type      String
+
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  trainerDatasetId Int
+  trainerDataset TrainerDataset @relation(fields: [trainerDatasetId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  trainerPipeline TrainerPipeline @relation(fields: [trainerPipelineId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+
+model TrainerEvaluation {
+  id              Int       @id @default(autoincrement())
+  trainerPipelineId Int       @map("trainer_pipeline_id")
+  metrics Json
+
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  trainerPipeline TrainerPipeline @relation(fields: [trainerPipelineId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

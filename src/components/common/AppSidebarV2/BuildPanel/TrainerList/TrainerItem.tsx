@@ -8,10 +8,11 @@ interface TrainerItemProps {
   trainer: TrainerDetail;
   className?: string;
   onClick?: (trainer: TrainerDetail) => void;
+  isSelected?: boolean;
 }
 
 export const TrainerItem = memo((props: TrainerItemProps) => {
-  const { trainer, className, onClick } = props;
+  const { trainer, className, onClick, isSelected } = props;
 
   const handleClick = () => {
     onClick?.(trainer);
@@ -21,6 +22,7 @@ export const TrainerItem = memo((props: TrainerItemProps) => {
     <div
       className={cn(
         "p-3 rounded-lg border bg-card hover:bg-accent focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors cursor-pointer",
+        isSelected && "bg-accent",
         className
       )}
       onClick={handleClick}

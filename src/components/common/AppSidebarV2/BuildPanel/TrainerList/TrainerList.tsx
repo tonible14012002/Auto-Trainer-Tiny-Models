@@ -10,10 +10,11 @@ interface TrainerListProps {
   isLoading?: boolean;
   error?: Error | null;
   onClick?: (trainer: TrainerDetail) => void;
+  selectedTrainerId?: number;
 }
 
 export const TrainerList = memo((props: TrainerListProps) => {
-  const { trainers, isLoading, error, onClick } = props;
+  const { trainers, isLoading, error, onClick, selectedTrainerId } = props;
 
   if (isLoading) {
     return (
@@ -48,6 +49,7 @@ export const TrainerList = memo((props: TrainerListProps) => {
           key={trainer.id}
           trainer={trainer}
           onClick={onClick}
+          isSelected={selectedTrainerId === trainer.id}
         />
       ))}
     </div>

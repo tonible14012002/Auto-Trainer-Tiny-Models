@@ -3,12 +3,13 @@
 import {
   FormControl,
   FormDescription,
+  FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { type ElementRef, forwardRef } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import type { FieldPath, FieldValues, UseFormReturn } from "react-hook-form";
 
 export interface BaseFormControlProps {
@@ -88,7 +89,7 @@ export const withForm = <
       const { setValue } = useFormContext<TFieldValues>();
 
       return (
-        <Controller<Value>
+        <FormField<Value>
           name={name}
           render={({ field: { value, onChange, onBlur } }) => {
             return (

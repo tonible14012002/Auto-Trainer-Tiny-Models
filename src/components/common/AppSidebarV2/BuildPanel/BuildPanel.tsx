@@ -7,7 +7,7 @@ import { BuildSearchBar } from "./BuildSearchBar";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useFetchTrainers } from "@/hooks/trainer/useFetchTrainers";
 import { TrainerList } from "./TrainerList";
 import { TrainerCreatePopup } from "@/components/Train/TrainerCreatePopup";
@@ -20,7 +20,13 @@ interface BuildPanelProps {
 export const BuildPanel = memo((props: BuildPanelProps) => {
   const { className } = props;
   const router = useRouter();
+  const pathname = usePathname();
   const { data, isLoading, error } = useFetchTrainers();
+
+  // Extract trainerId from pathname like /train/123
+  const selectedTrainerId = pathname?.match(/\/train\/(\d+)/)?.[1]
+    ? Number(pathname.match(/\/train\/(\d+)/)?.[1])
+    : undefined;
 
   const handleTrainerClick = (trainer: { id: number }) => {
     router.push(ROUTES.TRAIN_DETAIL(trainer.id));
@@ -55,6 +61,7 @@ export const BuildPanel = memo((props: BuildPanelProps) => {
           isLoading={isLoading}
           error={error}
           onClick={handleTrainerClick}
+          selectedTrainerId={selectedTrainerId}
         />
       </ScrollArea>
     </div>

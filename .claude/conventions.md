@@ -207,3 +207,63 @@ Available form components:
 - `<FormProjectSelector />` - Project dropdown (if applicable)
 
 All form inputs automatically connect to `react-hook-form` via `name` prop.
+
+## Backend API Patterns
+
+### Request Schema and Types
+
+**IMPORTANT: JSON Fields in Request Types**
+- JSON fields (objects/arrays) MUST be typed as `string` in request type definitions
+- This is required because `JSONSchemaType` from Ajv cannot parse `any` types
+- Client must serialize these fields to JSON strings before sending (e.g., `JSON.stringify()`)
+- Endpoint handlers must parse these fields before passing to controllers (e.g., `JSON.parse()`)
+
+Example:
+```typescript
+// ❌ WRONG - Ajv cannot validate `any` type
+export type StartTrainerRequest = {
+  labelsConfig: any;
+};
+
+// ✅ CORRECT - Use string and parse in endpoint
+export type StartTrainerRequest = {
+  labelsConfig: string; // JSON serialized as string
+};
+
+// In endpoint handler:
+const postData = (await req.json()) as StartTrainerRequest;
+const labelsConfig = JSON.parse(postData.labelsConfig); // Parse before using
+await Controller.create({ ...postData, labelsConfig });
+```
+
+### Schema Structure
+
+- Request TypeScript types defined in `src/schema/schema.ts`
+- Request validation schemas defined inline in endpoint files using `JSONSchemaType<RequestType>`
+- Entity detail types use `Detail` postfix (e.g., `TrainerDetail`, `TrainerConfigDetail`) to distinguish from Prisma-generated types
+- Responses use `ResponseWithData<T>` wrapper and typed inline:
+  ```typescript
+  return Response.json(
+    { data: result } as ResponseWithData<TrainerDetail>,
+    { status: 200 }
+  );
+  ```
+
+### Controller Patterns
+
+- Controller methods accept optional `tx?: PrismaTx` parameter for transaction support
+- Default to `prisma` if no transaction provided:
+  ```typescript
+  async createEntity(input: CreateInput, tx?: PrismaTx) {
+    if (!tx) {
+      tx = prisma;
+    }
+    // ... use tx
+  }
+  ```
+- Include mapper functions to transform Prisma types to Detail types:
+  ```typescript
+  const mapPrismaEntityToSchema = (entity: any): EntityDetail => {
+    return { /* transform fields */ };
+  };
+  ```

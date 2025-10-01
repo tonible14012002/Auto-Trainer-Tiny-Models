@@ -1,20 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form } from '@/components/ui/form';
+import { FormInput } from '@/components/common/Form/FormInput';
 
-export interface BudgetTargetData {
-  targetAccuracy: number;
-  targetPrecision: number;
-  targetRecall: number;
-  targetF1Score: number;
-  maxBudget: number;
-  alertAtBudgetUsage: number;
-}
+const budgetTargetSchema = z.object({
+  targetAccuracy: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
+  targetPrecision: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
+  targetRecall: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
+  targetF1Score: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
+  maxBudget: z.coerce.number().min(0, "Must be at least 0"),
+  alertAtBudgetUsage: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
+});
+
+export type BudgetTargetData = z.infer<typeof budgetTargetSchema>;
 
 interface BudgetTargetFormProps {
   onBack: () => void;
@@ -27,137 +31,104 @@ export const BudgetTargetForm: React.FC<BudgetTargetFormProps> = ({
   onSave,
   initialData
 }) => {
-  const [formData, setFormData] = useState<BudgetTargetData>(
-    initialData || {
+  const formInstance = useForm<BudgetTargetData>({
+    defaultValues: initialData || {
       targetAccuracy: 0,
       targetPrecision: 0,
       targetRecall: 0,
       targetF1Score: 0,
       maxBudget: 0,
       alertAtBudgetUsage: 80,
-    }
-  );
+    },
+    resolver: zodResolver(budgetTargetSchema),
+  });
 
-  const handleSave = () => {
-    onSave(formData);
-  };
+  const handleSubmit = formInstance.handleSubmit((data) => {
+    onSave(data);
+  });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={onBack}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h2 className="text-xl font-semibold">Budget & Target Configuration</h2>
-          <p className="text-sm text-muted-foreground">Set target metrics and budget limits</p>
+    <Form {...formInstance}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4 mt-4">
+          <Button type="button" variant="ghost" size="icon" onClick={onBack}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h2 className="text-xl font-semibold">Budget & Target Configuration</h2>
+            <p className="text-sm text-muted-foreground">Set target metrics and budget limits</p>
+          </div>
         </div>
-      </div>
 
-      {/* Expected Metrics Output */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Expected Metrics Output</CardTitle>
-          <CardDescription>Set target metrics for model performance</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Target Accuracy (%)</Label>
-            <Input
+        {/* Expected Metrics Output */}
+        <div className="space-y-3 mt-4">
+          <h3 className="text-base font-semibold">Target Performance Metrics</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <FormInput
+              name="targetAccuracy"
+              label="Accuracy target (%)"
               type="number"
               placeholder="e.g., 95"
-              min="0"
-              max="100"
-              value={formData.targetAccuracy || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, targetAccuracy: Number(e.target.value) })
-              }
+              min={0}
+              max={100}
             />
-          </div>
-          <div className="space-y-2">
-            <Label>Target Precision (%)</Label>
-            <Input
+            <FormInput
+              name="targetPrecision"
+              label="Precision target (%)"
               type="number"
               placeholder="e.g., 90"
-              min="0"
-              max="100"
-              value={formData.targetPrecision || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, targetPrecision: Number(e.target.value) })
-              }
+              min={0}
+              max={100}
             />
-          </div>
-          <div className="space-y-2">
-            <Label>Target Recall (%)</Label>
-            <Input
+            <FormInput
+              name="targetRecall"
+              label="Recall target (%)"
               type="number"
               placeholder="e.g., 90"
-              min="0"
-              max="100"
-              value={formData.targetRecall || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, targetRecall: Number(e.target.value) })
-              }
+              min={0}
+              max={100}
             />
-          </div>
-          <div className="space-y-2">
-            <Label>Target F1 Score (%)</Label>
-            <Input
+            <FormInput
+              name="targetF1Score"
+              label="F1 score target (%)"
               type="number"
               placeholder="e.g., 92"
-              min="0"
-              max="100"
-              value={formData.targetF1Score || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, targetF1Score: Number(e.target.value) })
-              }
+              min={0}
+              max={100}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Trainer Budget Limit */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Trainer Budget Limit</CardTitle>
-          <CardDescription>Training will automatically stop when budget limit is reached</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Maximum Budget ($)</Label>
-            <Input
+        {/* Trainer Budget Limit */}
+        <div className="space-y-3 mt-4">
+          <h3 className="text-base font-semibold">Budget Limits</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <FormInput
+              name="maxBudget"
+              label="Maximum training budget ($)"
               type="number"
               placeholder="e.g., 100"
-              min="0"
-              step="0.01"
-              value={formData.maxBudget || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, maxBudget: Number(e.target.value) })
-              }
+              min={0}
+              step={0.01}
             />
-          </div>
-          <div className="space-y-2">
-            <Label>Alert at Budget Usage (%)</Label>
-            <Input
+            <FormInput
+              name="alertAtBudgetUsage"
+              label="Alert threshold (%)"
               type="number"
               placeholder="e.g., 80"
-              min="0"
-              max="100"
-              value={formData.alertAtBudgetUsage || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, alertAtBudgetUsage: Number(e.target.value) })
-              }
+              min={0}
+              max={100}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={onBack}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
-      </div>
-    </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4">
+          <Button type="button" variant="outline" onClick={onBack}>Cancel</Button>
+          <Button type="submit">Save</Button>
+        </div>
+      </form>
+    </Form>
   );
 };
