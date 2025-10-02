@@ -10,12 +10,8 @@ import { Form } from '@/components/ui/form';
 import { FormInput } from '@/components/common/Form/FormInput';
 
 const budgetTargetSchema = z.object({
-  targetAccuracy: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
-  targetPrecision: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
-  targetRecall: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
-  targetF1Score: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
-  maxBudget: z.coerce.number().min(0, "Must be at least 0"),
-  alertAtBudgetUsage: z.coerce.number().min(0, "Must be at least 0").max(100, "Must be at most 100"),
+  maxBudget: z.coerce.number().min(0.01, "Budget must be greater than 0"),
+  alertAtBudgetUsage: z.coerce.number().min(1, "Must be at least 1").max(100, "Must be at most 100"),
 });
 
 export type BudgetTargetData = z.infer<typeof budgetTargetSchema>;
@@ -33,11 +29,7 @@ export const BudgetTargetForm: React.FC<BudgetTargetFormProps> = ({
 }) => {
   const formInstance = useForm<BudgetTargetData>({
     defaultValues: initialData || {
-      targetAccuracy: 0,
-      targetPrecision: 0,
-      targetRecall: 0,
-      targetF1Score: 0,
-      maxBudget: 0,
+      maxBudget: 10,
       alertAtBudgetUsage: 80,
     },
     resolver: zodResolver(budgetTargetSchema),
@@ -56,69 +48,33 @@ export const BudgetTargetForm: React.FC<BudgetTargetFormProps> = ({
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h2 className="text-xl font-semibold">Budget & Target Configuration</h2>
-            <p className="text-sm text-muted-foreground">Set target metrics and budget limits</p>
+            <h2 className="text-xl font-semibold">Budget Configuration</h2>
+            <p className="text-sm text-muted-foreground">Set your training budget and alert preferences</p>
           </div>
         </div>
 
-        {/* Expected Metrics Output */}
-        <div className="space-y-3 mt-4">
-          <h3 className="text-base font-semibold">Target Performance Metrics</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <FormInput
-              name="targetAccuracy"
-              label="Accuracy target (%)"
-              type="number"
-              placeholder="e.g., 95"
-              min={0}
-              max={100}
-            />
-            <FormInput
-              name="targetPrecision"
-              label="Precision target (%)"
-              type="number"
-              placeholder="e.g., 90"
-              min={0}
-              max={100}
-            />
-            <FormInput
-              name="targetRecall"
-              label="Recall target (%)"
-              type="number"
-              placeholder="e.g., 90"
-              min={0}
-              max={100}
-            />
-            <FormInput
-              name="targetF1Score"
-              label="F1 score target (%)"
-              type="number"
-              placeholder="e.g., 92"
-              min={0}
-              max={100}
-            />
-          </div>
-        </div>
-
-        {/* Trainer Budget Limit */}
-        <div className="space-y-3 mt-4">
-          <h3 className="text-base font-semibold">Budget Limits</h3>
-          <div className="grid grid-cols-2 gap-4">
+        {/* Budget Settings */}
+        <div className="space-y-4 mt-6">
+          <div className="space-y-2">
             <FormInput
               name="maxBudget"
-              label="Maximum training budget ($)"
+              label="Maximum Training Budget ($)"
               type="number"
-              placeholder="e.g., 100"
-              min={0}
+              placeholder="e.g., 10"
+              min={0.01}
               step={0.01}
+              description="Set the maximum amount you want to spend on training this model"
             />
+          </div>
+          <div className="space-y-2">
             <FormInput
               name="alertAtBudgetUsage"
-              label="Alert threshold (%)"
+              label="Alert Threshold (%)"
               type="number"
               placeholder="e.g., 80"
-              min={0}
+              min={1}
               max={100}
+              description="Get notified when your training costs reach this percentage of your budget"
             />
           </div>
         </div>

@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Settings, CheckCircle2, ChevronRight, FileText, Target, Database } from 'lucide-react';
+import { Settings, ChevronRight, FileText, Target, Database } from 'lucide-react';
 import { useFetchTrainers } from '@/hooks/trainer/useFetchTrainers';
 import { TaskDefinitionForm, TaskDefinitionData } from './TaskDefinitionForm';
 import { BudgetTargetForm, BudgetTargetData } from './BudgetTargetForm';
@@ -41,6 +41,7 @@ export const TrainerConfiguration: React.FC<TrainerConfigurationProps> = ({ trai
       description: 'Define task type, model purpose, and labels',
       icon: FileText,
       completed: !!configData.taskDefinition,
+      optional: false,
     },
     {
       id: 'budget-target' as ConfigSection,
@@ -48,13 +49,15 @@ export const TrainerConfiguration: React.FC<TrainerConfigurationProps> = ({ trai
       description: 'Set target metrics and budget limits',
       icon: Target,
       completed: !!configData.budgetTarget,
+      optional: false,
     },
     {
       id: 'dataset-evaluation' as ConfigSection,
       title: 'Dataset Evaluation Configuration',
-      description: 'Upload custom evaluation dataset',
+      description: 'Upload custom evaluation dataset (optional - can be added later)',
       icon: Database,
       completed: !!configData.datasetEvaluation,
+      optional: true,
     },
   ];
 
@@ -78,7 +81,7 @@ export const TrainerConfiguration: React.FC<TrainerConfigurationProps> = ({ trai
     console.log('Starting training with config:', configData);
   };
 
-  const allSectionsCompleted = sections.every(s => s.completed);
+  const allSectionsCompleted = sections.filter(s => !s.optional).every(s => s.completed);
 
   // Render current section
   if (currentSection !== 'list') {
@@ -133,7 +136,11 @@ export const TrainerConfiguration: React.FC<TrainerConfigurationProps> = ({ trai
           return (
             <Card
               key={section.id}
-              className="cursor-pointer shadow-none hover:bg-accent focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
+              className={`cursor-pointer shadow-none hover:bg-accent focus-visible:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors ${
+                section.completed
+                  ? 'border-green-500 bg-green-50/50'
+                  : ''
+              }`}
               onClick={() => setCurrentSection(section.id)}
               tabIndex={0}
               onKeyDown={(e) => {
@@ -146,14 +153,20 @@ export const TrainerConfiguration: React.FC<TrainerConfigurationProps> = ({ trai
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
-                      <Icon className="w-6 h-6 text-primary" />
+                    <div className={`flex items-center justify-center w-12 h-12 rounded-lg ${
+                      section.completed ? 'bg-green-100' : 'bg-primary/10'
+                    }`}>
+                      <Icon className={`w-6 h-6 ${
+                        section.completed ? 'text-green-600' : 'text-primary'
+                      }`} />
                     </div>
                     <div className="flex-1">
                       <CardTitle className="text-lg flex items-center gap-2">
                         {section.title}
-                        {section.completed && (
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        {section.optional && (
+                          <Badge variant="outline" className="text-xs font-normal">
+                            Optional
+                          </Badge>
                         )}
                       </CardTitle>
                       <CardDescription>{section.description}</CardDescription>
