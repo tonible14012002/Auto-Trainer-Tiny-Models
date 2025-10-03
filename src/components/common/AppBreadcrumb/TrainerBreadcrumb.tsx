@@ -24,7 +24,7 @@ export function TrainerBreadcrumb({ className}: TrainerBreadcrumbProps) {
   const trainerName = useMemo(() => {
     if (!data?.data || !trainerId) return trainerId;
 
-    const trainer = data.data.find(t => t.id === Number(trainerId));
+    const trainer = data.data.find(t => t.id === trainerId);
     return trainer?.name || trainerId;
   }, [data?.data, trainerId]);
 

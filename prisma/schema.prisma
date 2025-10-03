@@ -11,8 +11,14 @@ datasource db {
 }
 
 
+model SeedingHistory {
+  id        String   @id @default(uuid())
+  fileName  String   @unique
+  createdAt DateTime @default(now())
+}
+
 model Trainer {
-  id                 Int       @id @default(autoincrement())
+  id                 String       @id @default(uuid())
   name              String
   description       String
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -23,8 +29,8 @@ model Trainer {
 
 
 model TrainerConfig {
-  id                Int       @id @default(autoincrement())
-  trainerId        Int       @map("trainer_id")
+  id                String       @id @default(uuid())
+  trainerId        String       @map("trainer_id")
 
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
@@ -48,8 +54,8 @@ model TrainerConfig {
 }
 
 model TrainerPipeline {
-  id               Int       @id @default(autoincrement())
-  trainerConfigId Int @unique @map("trainer_config_id")
+  id               String       @id @default(uuid())
+  trainerConfigId String @unique @map("trainer_config_id")
   // trainerId Int       @map("trainer_id")
 
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -64,8 +70,8 @@ model TrainerPipeline {
 }
 
 model TrainingJob {
-  id              Int       @id @default(autoincrement())
-  trainerPipelineId Int       @map("trainer_pipeline_id")
+  id              String       @id @default(uuid())
+  trainerPipelineId String       @map("trainer_pipeline_id")
   startAt    DateTime  @map("start_at") @db.Timestamptz(6)
   endAt      DateTime? @map("end_at") @db.Timestamptz(6)
   status     String
@@ -77,8 +83,8 @@ model TrainingJob {
 }
 
 model TrainerDataset {
-  id             Int       @id @default(autoincrement())
-  trainerPipelineId Int       @map("trainer_pipeline_id")
+  id             String       @id @default(uuid())
+  trainerPipelineId String       @map("trainer_pipeline_id")
 
   filePath String @map("file_path")
   fileSize Int @map("file_size")
@@ -93,8 +99,8 @@ model TrainerDataset {
 }
 
 model DatasetGenerationJob {
-  id              Int       @id @default(autoincrement())
-  trainerPipelineId Int       @map("trainer_pipeline_id")
+  id              String       @id @default(uuid())
+  trainerPipelineId String       @map("trainer_pipeline_id")
   startAt    DateTime  @map("start_at") @db.Timestamptz(6)
   endAt      DateTime? @map("end_at") @db.Timestamptz(6)
   status     String
@@ -103,15 +109,15 @@ model DatasetGenerationJob {
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  trainerDatasetId Int
+  trainerDatasetId String
   trainerDataset TrainerDataset @relation(fields: [trainerDatasetId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   trainerPipeline TrainerPipeline @relation(fields: [trainerPipelineId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 
 model TrainerEvaluation {
-  id              Int       @id @default(autoincrement())
-  trainerPipelineId Int       @map("trainer_pipeline_id")
+  id              String       @id @default(uuid())
+  trainerPipelineId String       @map("trainer_pipeline_id")
   metrics Json
 
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)

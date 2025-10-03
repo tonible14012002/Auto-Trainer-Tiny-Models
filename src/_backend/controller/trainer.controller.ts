@@ -1,34 +1,12 @@
 
 import prisma, { PrismaTx } from "@/_backend/lib/prisma";
 import { TrainerDetail, TrainerConfigDetail } from "@/schema/schema";
-
-export type TrainerCreateInput = {
-  name: string;
-  description: string;
-};
-
-export type TrainerListOptions = {
-  limit?: number;
-  offset?: number;
-};
-
-export type TrainerConfigCreateInput = {
-  trainerId: number;
-  taskType: string;
-  taskDescription: string;
-  domainDescription: string;
-  labelsConfig: any;
-  budgetLimit?: number;
-};
-
-export type TrainerConfigUpdateInput = {
-  refinedTaskDescription?: string;
-  refinedDomainDescription?: string;
-  refinedLabelsConfig?: any;
-  budgetLimit?: number;
-  budgetUsed?: number;
-  activatedAt?: Date;
-};
+import {
+  TrainerCreateInput,
+  TrainerListOptions,
+  TrainerConfigCreateInput,
+  TrainerConfigUpdateInput,
+} from "@/schema/request";
 
 const mapPrismaTrainerToSchema = (prismaTrainer: any): TrainerDetail => {
   return {
@@ -89,7 +67,7 @@ export const TrainerController = {
     return prismaTrainers.map(mapPrismaTrainerToSchema);
   },
 
-  getTrainer: async (trainerId: number) => {
+  getTrainer: async (trainerId: string) => {
     const prismaTrainer = await prisma.trainer.findFirst({
       where: {
         id: trainerId,
@@ -101,6 +79,42 @@ export const TrainerController = {
     }
 
     return mapPrismaTrainerToSchema(prismaTrainer);
+  },
+
+  getTrainerDetail: async (trainerId: string) => {
+    const prismaTrainer = await prisma.trainer.findFirst({
+      where: {
+        id: trainerId,
+      },
+      include: {
+        configs: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
+    });
+
+    if (!prismaTrainer) {
+      throw new Error(`Trainer with id ${trainerId} not found`);
+    }
+
+    const trainer = mapPrismaTrainerToSchema(prismaTrainer);
+    const configs = prismaTrainer.configs.map(mapPrismaTrainerConfigToSchema);
+
+    // Find the active config (most recent one with activatedAt set)
+    const activeConfig = configs
+      .filter((config: TrainerConfigDetail) => config.activatedAt !== null)
+      .sort((a: TrainerConfigDetail, b: TrainerConfigDetail) => {
+        if (!a.activatedAt || !b.activatedAt) return 0;
+        return b.activatedAt.getTime() - a.activatedAt.getTime();
+      })[0] || null;
+
+    return {
+      ...trainer,
+      configs,
+      activeConfig,
+    } as TrainerDetail;
   },
 
   createTrainerConfig: async (input: TrainerConfigCreateInput, tx?: PrismaTx) => {
@@ -123,7 +137,7 @@ export const TrainerController = {
   },
 
   updateTrainerConfig: async (
-    configId: number,
+    configId: string,
     input: TrainerConfigUpdateInput,
     tx?: PrismaTx
   ) => {

@@ -5,25 +5,14 @@ import { ResponseWithData } from "@/schema/response";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const trainerId = Number(params.id);
+    const { id } = await params;
 
-    if (isNaN(trainerId)) {
-      return Response.json(
-        {
-          status: 400,
-          err: "Invalid trainer ID",
-          errorCode: 400,
-        },
-        { status: 400 }
-      );
-    }
-
-    const trainer = await TrainerController.getTrainer(trainerId);
+    const trainerDetail = await TrainerController.getTrainerDetail(id);
     return Response.json(
-      { data: trainer } as ResponseWithData<TrainerDetail>,
+      { data: trainerDetail } as ResponseWithData<TrainerDetail>,
       { status: 200 }
     );
   } catch (e) {

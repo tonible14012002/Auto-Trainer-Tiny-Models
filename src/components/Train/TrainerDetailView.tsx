@@ -1,34 +1,51 @@
 'use client';
 
-import React, { useState } from 'react';
-import { TrainerConfiguration } from './TrainerConfiguration/TrainerConfiguration';
+import React from 'react';
+import { TrainerConfiguration } from './TrainerConfiguration';
+import { TrainerPipelineView } from './TrainerPipelineView';
+import { useFetchTrainerDetail } from '@/hooks/trainer';
 
 interface TrainerDetailViewProps {
   trainerId: string;
 }
 
-type TrainerState = 'configuring' | 'running';
-
 export const TrainerDetailView: React.FC<TrainerDetailViewProps> = ({ trainerId }) => {
-  // TODO: Fetch trainer state from API/store
-  const [trainerState, _] = useState<TrainerState>('configuring');
+  const { data: { data: trainerDetail } = {} , isLoading, error } = useFetchTrainerDetail(trainerId, true);
 
-  // Determine which view to render based on trainer state
-  const renderContent = () => {
-    switch (trainerState) {
-      case 'configuring':
-        return <TrainerConfiguration trainerId={trainerId} />;
-      case 'running':
-        // TODO: Implement running state view
-        return (
-          <div className="flex items-center justify-center h-full p-6">
-            <p className="text-muted-foreground">Running state view - Coming soon</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full p-6">
+        <p className="text-muted-foreground">Loading trainer details...</p>
+      </div>
+    );
+  }
 
-  return <div className="h-full">{renderContent()}</div>;
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full p-6">
+        <p className="text-destructive">Error loading trainer: {error.message}</p>
+      </div>
+    );
+  }
+
+  // No data
+  if (!trainerDetail) {
+    return (
+      <div className="flex items-center justify-center h-full p-6">
+        <p className="text-muted-foreground">Trainer not found</p>
+      </div>
+    );
+  }
+
+  const { activeConfig } = trainerDetail;
+
+  // If there's an active config, show the pipeline view
+  if (activeConfig) {
+    return <TrainerPipelineView trainerDetail={trainerDetail} />;
+  }
+
+  // Otherwise, show the configuration form
+  return <TrainerConfiguration trainerId={trainerId} />;
 };

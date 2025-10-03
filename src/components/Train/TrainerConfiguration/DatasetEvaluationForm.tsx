@@ -15,7 +15,7 @@ const datasetEvaluationSchema = z.object({
     message: "Dataset file is required",
   }),
   datasetFileName: z.string().min(1, "Dataset file is required"),
-  exampleCount: z.coerce.number().min(150, "Minimum 150 evaluation examples required"),
+  exampleCount: z.number().min(150, "Minimum 150 evaluation examples required"),
 });
 
 export type DatasetEvaluationData = z.infer<typeof datasetEvaluationSchema>;

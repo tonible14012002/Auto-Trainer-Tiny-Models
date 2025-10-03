@@ -7,12 +7,12 @@ import { ResponseWithData } from "@/schema/response";
 const startTrainerSchema: JSONSchemaType<StartTrainerRequest> = {
   type: "object",
   properties: {
-    trainerId: { type: "integer" },
+    trainerId: { type: "string" },
     taskType: { type: "string" },
     taskDescription: { type: "string" },
     domainDescription: { type: "string" },
     labelsConfig: { type: "string" },
-    budgetLimit: { type: "number", nullable: true, optional: true },
+    budgetLimit: { type: "number", nullable: true },
   },
   required: ["trainerId", "taskType", "taskDescription", "domainDescription", "labelsConfig"],
   additionalProperties: false,

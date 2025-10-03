@@ -1,16 +1,16 @@
 // ============= Trainer Schemas =============
 
-export type TrainerDetail = {
-  id: number;
+type JsonStr = string; // A string that contains JSON
+
+export type CustomLabelConfig = {
   name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
+  explanation: string;
+  examples: string;
 };
 
 export type TrainerConfigDetail = {
-  id: number;
-  trainerId: number;
+  id: string;
+  trainerId: string;
   taskType: string;
   taskDescription: string;
   domainDescription: string;
@@ -25,11 +25,15 @@ export type TrainerConfigDetail = {
   updatedAt: Date;
 };
 
-// ============= Request Types =============
-// NOTE: JSON fields (objects/arrays) should be typed as `string` in request types
-// because JSONSchemaType from Ajv cannot parse `any` types.
-// These fields must be serialized to JSON strings before sending to the API,
-// and parsed in the endpoint handler before passing to controllers.
+export type TrainerDetail = {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  configs?: TrainerConfigDetail[];
+  activeConfig?: TrainerConfigDetail | null;
+};
 
 export type CreateTrainerRequest = {
   name: string;
@@ -37,10 +41,10 @@ export type CreateTrainerRequest = {
 };
 
 export type StartTrainerRequest = {
-  trainerId: number;
+  trainerId: string;
   taskType: string;
   taskDescription: string;
   domainDescription: string;
-  labelsConfig: string; // JSON string - must be parsed in endpoint
+  labelsConfig: JsonStr; // JSON string - must be parsed in endpoint
   budgetLimit?: number;
 };
