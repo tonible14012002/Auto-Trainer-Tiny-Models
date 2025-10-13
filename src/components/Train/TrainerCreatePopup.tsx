@@ -21,7 +21,7 @@ import { FormTextArea } from "@/components/common/Form/FormTextArea";
 
 interface TrainerCreatePopupProps {
   trigger?: ReactNode;
-  onSuccess?: (trainerId: number) => void;
+  onSuccess?: (trainerId: string) => void;
 }
 
 const schema = z.object({

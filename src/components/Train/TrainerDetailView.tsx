@@ -1,16 +1,15 @@
 'use client';
 
 import React from 'react';
-import { TrainerConfiguration } from './TrainerConfiguration';
 import { TrainerPipelineView } from './TrainerPipelineView';
-import { useFetchTrainerDetail } from '@/hooks/trainer';
+import { useFetchPipeline } from '@/hooks/pipeline/useFetchPipeline';
 
 interface TrainerDetailViewProps {
-  trainerId: string;
+  pipelineId: string;
 }
 
-export const TrainerDetailView: React.FC<TrainerDetailViewProps> = ({ trainerId }) => {
-  const { data: { data: trainerDetail } = {} , isLoading, error } = useFetchTrainerDetail(trainerId, true);
+export const TrainerDetailView: React.FC<TrainerDetailViewProps> = ({ pipelineId }) => {
+  const { data: { data: pipelineDetail } = {} , isLoading, error } = useFetchPipeline(pipelineId);
 
   // Show loading state
   if (isLoading) {
@@ -31,7 +30,7 @@ export const TrainerDetailView: React.FC<TrainerDetailViewProps> = ({ trainerId 
   }
 
   // No data
-  if (!trainerDetail) {
+  if (!pipelineDetail) {
     return (
       <div className="flex items-center justify-center h-full p-6">
         <p className="text-muted-foreground">Trainer not found</p>
@@ -39,13 +38,5 @@ export const TrainerDetailView: React.FC<TrainerDetailViewProps> = ({ trainerId 
     );
   }
 
-  const { activeConfig } = trainerDetail;
-
-  // If there's an active config, show the pipeline view
-  if (activeConfig) {
-    return <TrainerPipelineView trainerDetail={trainerDetail} />;
-  }
-
-  // Otherwise, show the configuration form
-  return <TrainerConfiguration trainerId={trainerId} />;
+  return <TrainerPipelineView pipelineDetail={pipelineDetail} />;
 };

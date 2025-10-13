@@ -1,0 +1,1 @@
+export { LabelInfoDialog } from "./LabelInfoDialog";

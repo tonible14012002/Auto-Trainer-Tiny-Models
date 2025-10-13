@@ -2,7 +2,7 @@
   {
     "id": "payment-detection-finetuned-tiny-bert",
     "name": "Payment Intent Detection",
-    "modelPath": "maroon14/payment-detect-onnx",
+    "modelPath": "maroon14/payment-intent",
     "category": "Language Processing",
     "task": "text-classification",
     "dtype": null,

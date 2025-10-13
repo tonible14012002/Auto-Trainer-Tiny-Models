@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { TrainerDetail } from "@/schema/schema";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,18 +10,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, PlayCircle, Trash2 } from "lucide-react";
-import { OverviewTab } from "./OverviewTab";
-import { DatasetTab } from "./DatasetTab";
-import { IterationTab } from "./IterationTab";
-import { AnalyzeTab } from "./AnalyzeTab";
 import { AppBreadcrumb } from "@/components/common/AppBreadcrumb";
+import { PipelineDetail } from "@/schema/schema_v2";
 
 interface TrainerPipelineViewProps {
-  trainerDetail: TrainerDetail;
+  pipelineDetail: PipelineDetail;
 }
 
 export const TrainerPipelineView: React.FC<TrainerPipelineViewProps> = ({
-  trainerDetail,
+  pipelineDetail,
 }) => {
   return (
     <div className="max-w p-4 pb-8 overflow-y-auto">
@@ -30,7 +26,7 @@ export const TrainerPipelineView: React.FC<TrainerPipelineViewProps> = ({
       <Tabs defaultValue="overview" className="max-w-[900px] mx-auto w-full">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">
-            {trainerDetail.name || "Unnamed Trainer"}
+            {pipelineDetail.name || "Unnamed Trainer"}
           </h1>
           <div className="flex items-center gap-2">
             <TabsList>
@@ -59,7 +55,7 @@ export const TrainerPipelineView: React.FC<TrainerPipelineViewProps> = ({
           </div>
         </div>
         <div className="max-w-[900px] mx-auto w-full">
-          <TabsContent value="overview">
+          {/* <TabsContent value="overview">
             <OverviewTab trainerDetail={trainerDetail} />
           </TabsContent>
           <TabsContent value="dataset">
@@ -70,7 +66,7 @@ export const TrainerPipelineView: React.FC<TrainerPipelineViewProps> = ({
           </TabsContent>
           <TabsContent value="analyze">
             <AnalyzeTab trainerDetail={trainerDetail} />
-          </TabsContent>
+          </TabsContent> */}
         </div>
       </Tabs>
     </div>

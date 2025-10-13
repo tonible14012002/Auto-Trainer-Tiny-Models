@@ -2,8 +2,7 @@
 
 import { useModels } from "@/provider/ModelsProvider";
 import { useParams, usePathname } from "next/navigation";
-import { TrainerParams } from "@/constants/routes";
-import { TrainerBreadcrumb } from "./TrainerBreadcrumb";
+import { PipelineParams } from "@/constants/routes";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,13 +19,13 @@ interface AppBreadcrumbProps {
 export function AppBreadcrumb({ className }: AppBreadcrumbProps) {
   const { selectedModel } = useModels();
   const pathname = usePathname();
-  const params = useParams<TrainerParams>();
+  const params = useParams<PipelineParams>();
 
   // Check if current page is a trainer page
-  const isTrainerPage = pathname?.startsWith("/train/");
+  const isPipelinePage = pathname?.startsWith("/pipeline/");
 
-  if (isTrainerPage && params?.trainerId) {
-    return <TrainerBreadcrumb className={className} />;
+  if (isPipelinePage && params?.pipelineId) {
+    return null
   }
 
   if (!selectedModel) {

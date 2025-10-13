@@ -4,8 +4,8 @@ export type ModelParams = BaseParams<{
   modelId: string;
 }>;
 
-export type TrainerParams = BaseParams<{
-  trainerId: string;
+export type PipelineParams = BaseParams<{
+  pipelineId: string;
 }>
 
 export const ROUTES = {
@@ -13,5 +13,5 @@ export const ROUTES = {
   HOME: "/",
   MODEL: (modelId: string) => `/${modelId}`,
   EXPERT_MODE: "/expert",
-  TRAIN_DETAIL: (trainerId: number) => `/train/${trainerId}`,
+  PIPELINE_DETAIL: (trainerId: string) => `/pipeline/${trainerId}`,
 };

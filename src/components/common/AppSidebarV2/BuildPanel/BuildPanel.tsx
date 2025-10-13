@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 import { useRouter, usePathname } from "next/navigation";
-import { useFetchTrainers } from "@/hooks/trainer/useFetchTrainers";
 import { TrainerList } from "./TrainerList";
 import { TrainerCreatePopup } from "@/components/Train/TrainerCreatePopup";
+import { useFetchPipelines } from "@/hooks/pipeline/useFetchPipelines";
 
 interface BuildPanelProps {
   className?: string;
@@ -21,19 +21,19 @@ export const BuildPanel = memo((props: BuildPanelProps) => {
   const { className } = props;
   const router = useRouter();
   const pathname = usePathname();
-  const { data, isLoading, error } = useFetchTrainers();
+  const { data, isLoading, error } = useFetchPipelines()
 
   // Extract trainerId from pathname like /train/123
   const selectedTrainerId = pathname?.match(/\/train\/(\d+)/)?.[1]
     ? Number(pathname.match(/\/train\/(\d+)/)?.[1])
     : undefined;
 
-  const handleTrainerClick = (trainer: { id: number }) => {
-    router.push(ROUTES.TRAIN_DETAIL(trainer.id));
+  const handleTrainerClick = (trainer: { id: string }) => {
+    router.push(ROUTES.PIPELINE_DETAIL(trainer.id));
   };
 
-  const handleTrainerCreated = (trainerId: number) => {
-    router.push(ROUTES.TRAIN_DETAIL(trainerId));
+  const handleTrainerCreated = (trainerId: string) => {
+    router.push(ROUTES.PIPELINE_DETAIL(trainerId));
   };
 
   return (
@@ -50,7 +50,7 @@ export const BuildPanel = memo((props: BuildPanelProps) => {
           trigger={
             <Button className="w-full" size="default">
               <PlusIcon className="size-4 mr-2" />
-              New AI Training Process
+              New AI Pipeline
             </Button>
           }
         />

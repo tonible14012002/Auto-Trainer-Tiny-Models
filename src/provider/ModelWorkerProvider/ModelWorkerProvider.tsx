@@ -76,6 +76,7 @@ export const ModelWorkerProvider = memo(({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (workerRef.current) return;
+    console.log("Starting model worker...");
     workerRef.current ??= new Worker(
       new URL("./worker/loadModelWorker.ts", import.meta.url),
       {
@@ -86,7 +87,6 @@ export const ModelWorkerProvider = memo(({ children }: PropsWithChildren) => {
     workerRef.current.addEventListener("message", (event) => {
       const data = event.data as WorkerMessage;
       if (data.type === MODEL_WORKER_EVENT.WORKER.worker_ready) {
-        console.log("Model Worker Ready");
         setIsWorkerReady(true);
       }
     });
