@@ -27,13 +27,13 @@ export const TextGenerationResultPanel = (
   };
 
   return (
-    <div className="mt-4 rounded-lg overflow-hidden">
+    <div className="rounded-lg overflow-hidden">
       {isPending && (
         <Progress indeterminate className="h-[2px] rounded-b-none" />
       )}
       <div
         className={cn(
-          "bg-muted p-4 break-words flex flex-col gap-3 text-sm min-h-[100px]",
+          "p-4 break-words flex flex-col gap-3 text-sm min-h-[100px]",
           {
             "animate-pulse": isPending,
           }

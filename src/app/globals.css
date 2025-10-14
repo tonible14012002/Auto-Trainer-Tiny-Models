@@ -121,6 +121,6 @@ html {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-accent/60 text-foreground;
   }
 }

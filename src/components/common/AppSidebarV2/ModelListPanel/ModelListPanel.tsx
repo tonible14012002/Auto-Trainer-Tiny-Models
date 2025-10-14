@@ -124,7 +124,7 @@ export const ModelListPanel = memo((props: any) => {
   };
 
   return (
-    <div className={cn("p-4 border-r flex flex-col min-h-0", className)}>
+    <div className={cn("p-4 border-r flex flex-col min-h-0 bg-white", className)}>
       <div className="space-y-3">
         <SidebarSearchBar
           onSearch={(query) => {

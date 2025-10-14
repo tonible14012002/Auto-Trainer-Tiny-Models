@@ -25,7 +25,7 @@ export function AppBreadcrumb({ className }: AppBreadcrumbProps) {
   const isPipelinePage = pathname?.startsWith("/pipeline/");
 
   if (isPipelinePage && params?.pipelineId) {
-    return null
+    return null;
   }
 
   if (!selectedModel) {
@@ -33,20 +33,18 @@ export function AppBreadcrumb({ className }: AppBreadcrumbProps) {
   }
 
   return (
-    <Breadcrumb className={className}>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink>
-            {selectedModel.category}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>
-            {selectedModel.name}
-          </BreadcrumbPage>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
+    <div className="px-4 pt-4 pb-4 bg-white border-b">
+      <Breadcrumb className={className}>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink>{selectedModel.category}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{selectedModel.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    </div>
   );
 }

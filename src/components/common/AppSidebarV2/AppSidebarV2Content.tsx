@@ -23,14 +23,14 @@ export const AppSidebarV2Content = memo((props: AppSidebarV2ContentProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col min-h-0">
+    <div className="h-full flex flex-col min-h-0 bg-white">
       {isMobile && (
-        <div className="p-4 border-b">
+        <div className="p-4 border-b bg-white">
           <AppHeaderLogo />
         </div>
       )}
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-[60px] border-r border-border min-w-[60px]">
+        <div className="w-[60px] border-r border-border min-w-[60px] bg-white">
           <div className="flex flex-col items-center">
             <PanelButton
               isActive={mode === SIDEBAR_MODE.MODELS}

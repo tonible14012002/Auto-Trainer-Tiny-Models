@@ -79,6 +79,7 @@ import type { ModelParams } from "@/constants/routes";
 import { ModelInformation } from "@/components/Model/ModelInformation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -393,7 +394,8 @@ export const ModelInferenceViewV2 = () => {
           <div className="p-4">
             <div className="text-center text-muted-foreground">
               <p>
-                Model task &quot;{selectedModel.task}&quot; is not yet supported in V2.
+                Model task &quot;{selectedModel.task}&quot; is not yet supported
+                in V2.
               </p>
             </div>
           </div>
@@ -599,8 +601,8 @@ export const ModelInferenceViewV2 = () => {
 
       {/* Inference Interface */}
       <div className="space-y-4">
-        {renderInferenceForm()}
-        {renderResultPanel()}
+        <Card className="p-3 rounded-lg">{renderInferenceForm()}</Card>
+        <div className="border rounded-lg bg-white">{renderResultPanel()}</div>
       </div>
     </div>
   );

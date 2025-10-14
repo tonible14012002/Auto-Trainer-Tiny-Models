@@ -83,7 +83,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ trainerDetail }) => {
         {/* Content Grid: 2x2 layout */}
         <div className="grid grid-rows-2 md:grid-rows-none grid-cols-none md:grid-cols-2 gap-4 mt-4">
           {/* Budget Usage Card */}
-          <div className="p-3 border rounded-lg space-y-3">
+          <div className="p-3 border rounded-lg bg-white space-y-3">
             <h4 className="text-sm font-semibold">Budget Usage</h4>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
@@ -100,7 +100,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ trainerDetail }) => {
           </div>
 
           {/* Dataset Card with View Button */}
-          <div className="p-3 border rounded-lg space-y-2">
+          <div className="p-3 border rounded-lg bg-white space-y-2">
             <div className="flex items-center justify-between">
               <div className="text-xs text-muted-foreground">Current Dataset Amount</div>
               <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
@@ -154,7 +154,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ trainerDetail }) => {
           </div>
 
           {/* Evaluation Set Card with Add Testcases Button */}
-          <div className="p-3 border rounded-lg space-y-2">
+          <div className="p-3 border rounded-lg bg-white space-y-2">
             <div className="flex items-center justify-between">
               <div className="text-xs text-muted-foreground">Current Evaluation Set</div>
               <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
@@ -172,7 +172,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ trainerDetail }) => {
 
         {/* Label Configuration - Full Width */}
         {labelsConfig && Array.isArray(labelsConfig) && labelsConfig.length > 0 && (
-          <div className="p-3 border rounded-lg space-y-2 mt-4">
+          <div className="p-3 border rounded-lg bg-white space-y-2 mt-4">
             <div className="text-xs text-muted-foreground">Label Configuration</div>
             <div className="flex flex-wrap gap-2">
               {labelsConfig.map((label: any, index: number) => (
@@ -197,28 +197,28 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ trainerDetail }) => {
             <CollapsibleContent>
               <div className="p-4 space-y-3 bg-muted/10 border-t">
                 <div className="grid grid-cols-1 md:grid-rows-2 md:grid-rows-none grid-cols-none md:grid-cols-2 gap-3">
-                  <div className="p-3 border rounded-lg space-y-1">
+                  <div className="p-3 border rounded-lg bg-white space-y-1">
                     <div className="text-sm text-muted-foreground">Iteration</div>
                     <div className="text-sm font-semibold">3 of 10</div>
                   </div>
 
-                  <div className="p-3 border rounded-lg space-y-1">
+                  <div className="p-3 border rounded-lg bg-white space-y-1">
                     <div className="text-sm text-muted-foreground">Best Accuracy</div>
                     <div className="text-sm font-semibold">87.3%</div>
                   </div>
 
-                  <div className="p-3 border rounded-lg space-y-1">
+                  <div className="p-3 border rounded-lg bg-white space-y-1">
                     <div className="text-sm text-muted-foreground">Samples Processed</div>
                     <div className="text-sm font-semibold">1,247</div>
                   </div>
 
-                  <div className="p-3 border rounded-lg space-y-1">
+                  <div className="p-3 border rounded-lg bg-white space-y-1">
                     <div className="text-sm text-muted-foreground">Training Loss</div>
                     <div className="text-sm font-semibold">0.342</div>
                   </div>
                 </div>
 
-                <div className="p-3 border rounded-lg space-y-2">
+                <div className="p-3 border rounded-lg bg-white space-y-2">
                   <div className="text-sm font-medium">Recent Changes</div>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Learning rate adjusted to 2e-5</li>

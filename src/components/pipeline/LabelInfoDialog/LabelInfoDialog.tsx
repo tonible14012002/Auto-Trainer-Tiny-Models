@@ -80,7 +80,7 @@ export function LabelInfoDialog({ labelConfig, trigger }: LabelInfoDialogProps) 
         <h3 className="text-sm font-semibold">Label Explanations</h3>
         <div className="space-y-3">
           {Object.entries(labelConfig.label_explanation).map(([label, explanation]) => (
-            <div key={label} className="space-y-1 p-2.5 border rounded-lg">
+            <div key={label} className="space-y-1 p-2.5 border rounded-lg bg-white">
               <Badge variant="outline" className="font-mono">
                 {label}
               </Badge>

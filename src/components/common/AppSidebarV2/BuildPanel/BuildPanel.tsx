@@ -39,7 +39,7 @@ export const BuildPanel = memo((props: BuildPanelProps) => {
   return (
     <div
       className={cn(
-        "p-4 border-r flex flex-col min-h-0",
+        "p-4 border-r flex flex-col min-h-0 bg-white",
         className
       )}
     >

@@ -3,9 +3,7 @@ import { AppBreadcrumb } from "@/components/common/AppBreadcrumb";
 export const AppContent = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex-1 overflow-hidden flex flex-col">
-      <div className="px-4 pt-4 pb-2">
         <AppBreadcrumb />
-      </div>
       <div className="flex-1 overflow-y-auto">
         {/* Breadcrumb - Full width, aligned left */}
 

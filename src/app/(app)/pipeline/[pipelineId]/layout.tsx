@@ -5,8 +5,7 @@ export default function TrainerLayout({
 }) {
   return (
     <div className="flex-1 overflow-hidden flex flex-col">
-      <div className="px-4 pt-4 pb-2">
-        {/*  */}
+      <div className="px-4 pt-4 pb-4">
       </div>
       <div className="flex-1 overflow-y-auto">
         {/* Breadcrumb - Full width, aligned left */}

@@ -60,22 +60,14 @@ export const PipelinePhaseTable: React.FC<PipelinePhaseTableProps> = ({ phases }
 
     return (
         <div className="space-y-4">
-            <div>
-                <h2 className="text-lg font-semibold mb-1">Runs</h2>
-                <p className="text-sm text-muted-foreground">
-                    Each run represents a separate trial of the pipeline.
-                </p>
-            </div>
-
             {initialPhases.length === 0 ? (
-                <div className="border rounded-lg p-8 text-center text-muted-foreground">
+                <div className="border rounded-lg bg-white p-8 text-center text-muted-foreground">
                     No runs found
                 </div>
             ) : (
-                initialPhases.map((phase, index) => (
+                initialPhases.map((phase) => (
                     <div key={phase.id} className="space-y-2">
-                        <h3 className="text-sm font-semibold">Run {index + 1}</h3>
-                        <div className="border rounded-lg">
+                        <div className="border rounded-lg bg-white">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
