@@ -30,11 +30,15 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-interface DatasetViewProps {
-  samples: DatasetSample[];
+interface DatasetViewProps<TData = DatasetSample> {
+  samples: TData[];
   labelConfig?: Record<string, string>;
   headTitle?: ReactNode;
   tableWrapperClassName?: string;
+  customColumns?: ColumnDef<TData, any>[];
+  enableSearch?: boolean;
+  searchPlaceholder?: string;
+  searchFilterFn?: (row: TData, searchValue: string) => boolean;
 }
 
 const columnHelper = createColumnHelper<DatasetSample>();
@@ -69,18 +73,32 @@ const HighlightedText: React.FC<{ text: string; searchQuery: string }> = ({
   );
 };
 
-export const DatasetView: React.FC<DatasetViewProps> = ({
+export const DatasetView = <TData extends Record<string, any> = DatasetSample>({
   samples,
   labelConfig,
   headTitle,
   tableWrapperClassName,
-}) => {
+  customColumns,
+  enableSearch = true,
+  searchPlaceholder = "Search messages...",
+  searchFilterFn,
+}: DatasetViewProps<TData>) => {
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  // Calculate label distribution
+  // Add index to samples
+  const samplesWithIndex = React.useMemo(
+    () => samples.map((sample, index) => ({ ...sample, _index: index + 1 })),
+    [samples]
+  );
+
+  // Calculate label distribution (only for DatasetSample type)
   const labelDistribution = React.useMemo(() => {
+    // Check if samples have 'label' property (DatasetSample type)
+    const hasLabelProperty = samples.length > 0 && 'label' in samples[0];
+    if (!hasLabelProperty) return [];
+
     const counts: Record<number, number> = {};
-    samples.forEach((sample) => {
+    samples.forEach((sample: any) => {
       counts[sample.label] = (counts[sample.label] || 0) + 1;
     });
 
@@ -93,8 +111,20 @@ export const DatasetView: React.FC<DatasetViewProps> = ({
     }));
   }, [samples, labelConfig]);
 
-  const columns = React.useMemo<ColumnDef<DatasetSample, any>[]>(
+  // Default columns for DatasetSample
+  const defaultColumns = React.useMemo<ColumnDef<any, any>[]>(
     () => [
+      {
+        id: "index",
+        header: "ID",
+        cell: (info: any) => {
+          return (
+            <div className="text-sm text-muted-foreground font-mono">
+              {info.row.original._index}
+            </div>
+          );
+        },
+      },
       columnHelper.accessor("msg", {
         header: "Message",
         cell: (info) => {
@@ -157,21 +187,45 @@ export const DatasetView: React.FC<DatasetViewProps> = ({
     [labelConfig, labelDistribution, searchQuery]
   );
 
+  const columns = customColumns || defaultColumns;
+
+  const defaultSearchFilter = React.useCallback(
+    (row: any, searchValue: string) => {
+      const lowerSearch = searchValue.toLowerCase();
+      // Try to search in 'msg' or 'text' fields by default
+      if (row.msg) {
+        return row.msg.toLowerCase().includes(lowerSearch);
+      }
+      if (row.text) {
+        return row.text.toLowerCase().includes(lowerSearch);
+      }
+      // Fallback: search in all string values
+      return Object.values(row).some(
+        (value) =>
+          typeof value === "string" && value.toLowerCase().includes(lowerSearch)
+      );
+    },
+    []
+  );
+
   const table = useReactTable({
-    data: samples,
+    data: samplesWithIndex,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      globalFilter: searchQuery,
-    },
-    onGlobalFilterChange: setSearchQuery,
-    globalFilterFn: (row, _columnId, filterValue) => {
-      const searchValue = filterValue.toLowerCase();
-      const message = row.original.msg.toLowerCase();
-      return message.includes(searchValue);
-    },
+    getFilteredRowModel: enableSearch ? getFilteredRowModel() : undefined,
+    state: enableSearch
+      ? {
+          globalFilter: searchQuery,
+        }
+      : undefined,
+    onGlobalFilterChange: enableSearch ? setSearchQuery : undefined,
+    globalFilterFn: enableSearch
+      ? (row, _columnId, filterValue) => {
+          const filterFn = searchFilterFn || defaultSearchFilter;
+          return filterFn(row.original, filterValue);
+        }
+      : undefined,
     initialState: {
       pagination: {
         pageSize: 10,
@@ -189,16 +243,18 @@ export const DatasetView: React.FC<DatasetViewProps> = ({
     <div className="space-y-3">
       {/* Search and Header */}
       {headTitle}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search messages..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-8 w-64 pl-8"
-          />
-        </div>
+      <div className="flex flex-col md:flex-row md:items-center gap-4">
+        {enableSearch && (
+          <div className="relative md:flex-1">
+            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 w-full md:w-64 pl-8"
+            />
+          </div>
+        )}
 
         {/* Pagination Controls */}
         <DatasetPagination

@@ -20,7 +20,7 @@ interface PipelinePhaseTableProps {
 
 export const PipelinePhaseTable: React.FC<PipelinePhaseTableProps> = ({ phases }) => {
     // Filter phases with phase_number = 0 (initial phases representing separate runs)
-    const initialPhases = phases.filter((phase) => phase.phase_number === 0);
+    const initialPhases = phases.filter((phase) => phase.phase_path === "");
 
     // Get status badge styling
     const getStatusBadge = (status: string) => {

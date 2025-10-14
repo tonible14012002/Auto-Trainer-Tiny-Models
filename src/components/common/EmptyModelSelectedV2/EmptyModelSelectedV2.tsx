@@ -10,7 +10,7 @@ export const EmptyModelSelectedV2 = () => {
   const { toggleSidebar } = useAppSidebarContextV2();
 
   return (
-    <div className="flex flex-col items-center justify-center h-full mt-16 px-4">
+    <div className="flex flex-col items-center justify-center h-full px-4 w-full -mt-8">
       <div className="text-center space-y-3 max-w-md">
         <h2 className="text-xl font-semibold text-foreground">
           Pick a Model

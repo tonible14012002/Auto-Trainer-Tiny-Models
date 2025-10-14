@@ -66,7 +66,7 @@ const formatDate = (dateString: string) => {
 
 export const ExperimentsList: React.FC<ExperimentsListProps> = ({ phases }) => {
   // Filter phases with phase_number = 0 (initial phases representing separate runs)
-  const experiments = phases.filter((phase) => phase.phase_number === 0);
+  const experiments = phases.filter((phase) => phase.phase_path === "");
 
   if (experiments.length === 0) {
     return (

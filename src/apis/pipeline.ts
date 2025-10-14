@@ -2,7 +2,7 @@ import { AI_SERVICE_API_KEY } from "@/constants/envs";
 import { Client } from "@/lib/client";
 import fetcher from "@/lib/fetcher";
 import { ResponseWithData } from "@/schema/response";
-import { PipelineDetail } from "@/schema/schema_v2";
+import { DatasetSample, PhaseDetail, PipelineDetail, TestsetDetail } from "@/schema/schema_v2";
 
 class PipelineService extends Client {
     listPipelines() {
@@ -23,8 +23,26 @@ class PipelineService extends Client {
     }
 
     getPipelineTestSet(pipelineId: string) {
-        return fetcher<ResponseWithData>(
+        return fetcher<ResponseWithData<TestsetDetail>>(
             `${this.baseUrl}/v2/workflow/pipelines/${pipelineId}/testset`,
+            {
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    getPhase(phaseId: string) {
+        return fetcher<ResponseWithData<PhaseDetail>>(
+            `${this.baseUrl}/v2/workflow/phase/${phaseId}`,
+            {
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    getPhaseTrainingPool(phaseId: string) {
+        return fetcher<ResponseWithData<TestsetDetail>>(
+            `${this.baseUrl}/v2/workflow/phase/${phaseId}/trainingpool`,
             {
                 headers: this.privateHeaders,
             }
