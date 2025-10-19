@@ -32,14 +32,6 @@ interface EvaluationSectionProps {
   labelConfig?: Record<string, string>;
 }
 
-const formatDate = (date: string) => {
-  try {
-    return dayjs(date).fromNow();
-  } catch {
-    return date;
-  }
-};
-
 // Create columns for low confidence predictions
 const createLowConfidenceColumns = (): ColumnDef<LowConfidentSample, any>[] => [
   {
@@ -61,7 +53,7 @@ const createLowConfidenceColumns = (): ColumnDef<LowConfidentSample, any>[] => [
       return (
         <Tooltip delayDuration={500}>
           <TooltipTrigger asChild>
-            <div className="max-w-xl text-sm break-words overflow-hidden cursor-default">
+            <div className="max-w-[300px] text-sm break-words cursor-default">
               {text}
             </div>
           </TooltipTrigger>
@@ -180,8 +172,9 @@ export const EvaluationSection = ({
                         {/* Per-Label Metrics */}
                         {Object.keys(labelMetrics).length > 0 && (
                           <div className="space-y-3">
-                            <div className="border rounded-lg overflow-x-auto">
-                              <Table className="bg-white">
+                            <div className="border rounded-lg overflow-x-auto w-full">
+                              <div className="min-w-max">
+                                <Table className="bg-white">
                                 <TableHeader>
                                   <TableRow>
                                     <TableHead className="font-medium">
@@ -252,6 +245,7 @@ export const EvaluationSection = ({
                                   )}
                                 </TableBody>
                               </Table>
+                              </div>
                             </div>
                           </div>
                         )}

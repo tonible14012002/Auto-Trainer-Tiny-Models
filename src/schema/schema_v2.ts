@@ -66,6 +66,28 @@ export interface DatasetFileDetail {
   id: string;
   phase_id: string;
   sample_count: number;
+  status?: "generating" | "done";
+}
+
+export interface DatasetFileWithSamples extends DatasetFileDetail {
+  status: "generating" | "done";
+  current_sample_count: number;
+  label_counts: LabelCounts;
+  batch_count: number;
+  samples: DatasetSample[] | null;
+}
+
+export interface BatchDatasetFile {
+  id: string;
+  batch_number: number;
+  sample_count: number;
+  samples: DatasetSample[];
+}
+
+export interface PhaseGenerationStatus {
+  phase_id: string;
+  dataset_file: DatasetFileWithSamples;
+  batch_files: BatchDatasetFile[];
 }
 
 export interface TrainedModelInfo {

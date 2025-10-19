@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dialog";
 import { Tags, TestTube } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 
 export default function PipelinePhasePage() {
   const { pipelineId, phaseId } = useParams<PipelinePhaseParams>();

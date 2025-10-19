@@ -132,7 +132,7 @@ export const DatasetView = <TData extends Record<string, any> = DatasetSample>({
           return (
             <Tooltip delayDuration={500}>
               <TooltipTrigger asChild>
-                <div className="max-w-xl text-sm break-words overflow-hidden cursor-default">
+                <div className="max-w-[300px] text-sm break-words cursor-default">
                   <HighlightedText text={message} searchQuery={searchQuery} />
                 </div>
               </TooltipTrigger>
@@ -251,7 +251,7 @@ export const DatasetView = <TData extends Record<string, any> = DatasetSample>({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-8 w-full md:w-64 pl-8"
+              className="h-8 w-full md:w-64 pl-8 bg-white"
             />
           </div>
         )}
@@ -268,10 +268,11 @@ export const DatasetView = <TData extends Record<string, any> = DatasetSample>({
         />
       </div>
       <div
-        className={cn("border rounded-lg bg-white", tableWrapperClassName)}
+        className={cn("border rounded-lg bg-white overflow-x-auto w-full", tableWrapperClassName)}
         style={{ minHeight: `${minH}px` }}
       >
-        <Table>
+        <div className="min-w-max">
+          <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -314,6 +315,7 @@ export const DatasetView = <TData extends Record<string, any> = DatasetSample>({
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );
