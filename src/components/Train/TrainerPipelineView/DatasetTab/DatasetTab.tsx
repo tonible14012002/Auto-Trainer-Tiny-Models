@@ -7,7 +7,7 @@ interface DatasetTabProps {
   trainerDetail: TrainerDetail;
 }
 
-export const DatasetTab: React.FC<DatasetTabProps> = ({ trainerDetail }) => {
+export const DatasetTab: React.FC<DatasetTabProps> = ({ trainerDetail: _trainerDetail }) => {
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold mb-4">Dataset</h2>

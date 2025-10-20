@@ -3,7 +3,7 @@
 import { PhaseDetail } from "@/schema/schema_v2";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Database, CheckCircle2 } from "lucide-react";
+import { FileText, Database, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -14,17 +14,41 @@ interface PhaseHeaderProps {
 }
 
 const getStatusBadge = (status: string) => {
-  const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-    completed: "default",
-    running: "secondary",
-    failed: "destructive",
-    pending: "outline",
-  };
-  return (
-    <Badge variant={variants[status] || "outline"}>
-      {status}
-    </Badge>
-  );
+  switch (status.toLowerCase()) {
+    case "completed":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-700 border-green-200"
+        >
+          <CheckCircle2 className="w-3 h-3 mr-1" />
+          Completed
+        </Badge>
+      );
+    case "running":
+    case "in_progress":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-blue-50 text-blue-700 border-blue-200"
+        >
+          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+          Running
+        </Badge>
+      );
+    case "failed":
+      return (
+        <Badge
+          variant="outline"
+          className="bg-red-50 text-red-700 border-red-200"
+        >
+          <XCircle className="w-3 h-3 mr-1" />
+          Failed
+        </Badge>
+      );
+    default:
+      return <Badge variant="outline">{status}</Badge>;
+  }
 };
 
 const formatDate = (date: string) => {

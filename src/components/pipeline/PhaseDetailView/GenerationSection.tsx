@@ -1,6 +1,6 @@
 "use client";
 
-import { BaseDatasetDetail, DatasetFileDetail } from "@/schema/schema_v2";
+import { DatasetFileDetail } from "@/schema/schema_v2";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Loader2 } from "lucide-react";
 import {
@@ -20,7 +20,6 @@ dayjs.extend(relativeTime);
 
 interface GenerationSectionProps {
   phaseId: string;
-  composalDatasets?: BaseDatasetDetail[];
   datasetFiles?: DatasetFileDetail[];
   labelConfig?: Record<string, string>;
 }
@@ -35,7 +34,6 @@ const formatDate = (date: string) => {
 
 export const GenerationSection = ({
   phaseId,
-  composalDatasets,
   datasetFiles,
   labelConfig,
 }: GenerationSectionProps) => {
@@ -87,62 +85,15 @@ export const GenerationSection = ({
         <div className="space-y-4">
           <h4 className="font-medium text-sm">Batch Datasets ({batchFiles.length})</h4>
           {batchFiles.map((batch) => (
-            <div key={batch.id} className="space-y-3">
-              <div className="flex items-center gap-2">
-                <h5 className="font-medium text-sm">Batch {batch.batch_number}</h5>
-                <span className="text-xs text-muted-foreground">
-                  {batch.sample_count} samples
-                </span>
-              </div>
-              {batch.samples && batch.samples.length > 0 && (
-                <DatasetView
-                  samples={batch.samples}
-                  labelConfig={labelConfig}
-                />
-              )}
+            <div key={batch.id} className="flex items-center gap-2">
+              <h5 className="font-medium text-sm">Batch {batch.batch_number}</h5>
+              <span className="text-xs text-muted-foreground">
+                {batch.sample_count} samples
+              </span>
             </div>
           ))}
         </div>
       )}
-
-      {/* Training Pool - Legacy */}
-      {composalDatasets && composalDatasets.length > 0 && (
-        <div className="space-y-3">
-          <div className="border rounded-lg overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Samples</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>File</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {composalDatasets.map((dataset) => (
-                  <TableRow key={dataset.id}>
-                    <TableCell className="text-muted-foreground max-w-xs truncate">
-                      {dataset.description || "No description"}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{dataset.total_samples}</Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(dataset.created_at)}
-                    </TableCell>
-                    <TableCell>
-                      <code className="text-xs bg-muted px-2 py-1 rounded">
-                        {dataset.file_path.split('/').pop()}
-                      </code>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      )}
-
       {/* Dataset Files - Legacy table view */}
       {datasetFiles && datasetFiles.length > 0 && (
         <div className="space-y-3">

@@ -29,6 +29,7 @@ export type PhaseDetail = {
   composal_datasets?: BaseDatasetDetail[];
   dataset_files?: DatasetFileDetail[];
   trained_models?: TrainedModelInfo[];
+  child_phases?: PhaseDetail[];
 };
 
 export interface TestsetDetail {
@@ -81,7 +82,6 @@ export interface BatchDatasetFile {
   id: string;
   batch_number: number;
   sample_count: number;
-  samples: DatasetSample[];
 }
 
 export interface PhaseGenerationStatus {

@@ -7,7 +7,7 @@ interface IterationTabProps {
   trainerDetail: TrainerDetail;
 }
 
-export const IterationTab: React.FC<IterationTabProps> = ({ trainerDetail }) => {
+export const IterationTab: React.FC<IterationTabProps> = ({ trainerDetail: _trainerDetail }) => {
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold mb-4">Iteration</h2>

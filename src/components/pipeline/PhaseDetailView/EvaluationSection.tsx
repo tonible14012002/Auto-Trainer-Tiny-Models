@@ -115,8 +115,7 @@ export const EvaluationSection = ({
       </div>
     );
   }
-  console.log(trainedModels);
-
+  
   return (
     <div className="space-y-6">
       {trainedModels?.map(

@@ -7,7 +7,7 @@ interface AnalyzeTabProps {
   trainerDetail: TrainerDetail;
 }
 
-export const AnalyzeTab: React.FC<AnalyzeTabProps> = ({ trainerDetail }) => {
+export const AnalyzeTab: React.FC<AnalyzeTabProps> = ({ trainerDetail: _trainerDetail }) => {
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold mb-4">Analyze</h2>

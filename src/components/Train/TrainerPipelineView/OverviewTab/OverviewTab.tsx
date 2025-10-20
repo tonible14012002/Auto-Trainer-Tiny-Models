@@ -10,15 +10,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Clock, ChevronRight, AlertCircle, Database, Plus, Info, ChevronDown } from "lucide-react";
+import { Clock, ChevronRight, AlertCircle, Database, Plus, ChevronDown } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface OverviewTabProps {

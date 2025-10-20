@@ -5,7 +5,10 @@ import { useFetchPhase } from "@/hooks/pipeline/phase/useFetchPhase";
 import { useFetchPipeline } from "@/hooks/pipeline/useFetchPipeline";
 import { useFetchPipelineTestSet } from "@/hooks/pipeline/useFetchPipelineTestset";
 import { useParams } from "next/navigation";
-import { PhaseDetailCard, TrainingPool } from "@/components/pipeline/PhaseDetailView";
+import {
+  PhaseDetailCard,
+  TrainingPool,
+} from "@/components/pipeline/PhaseDetailView";
 import { DatasetView } from "@/components/pipeline/DatasetView";
 import { LabelInfoDialog } from "@/components/pipeline/LabelInfoDialog/LabelInfoDialog";
 import { Button } from "@/components/ui/button";
@@ -18,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tags, TestTube } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 export default function PipelinePhasePage() {
   const { pipelineId, phaseId } = useParams<PipelinePhaseParams>();
@@ -28,19 +31,6 @@ export default function PipelinePhasePage() {
     useFetchPipelineTestSet(pipelineId);
 
   const [showTestDataset, setShowTestDataset] = useState(false);
-
-  // Get child phases from the pipeline data
-  const childPhases = useMemo(() => {
-    if (!pipelineDetail?.phases || !phaseDetail) return [];
-
-    // Filter phases where previous_phase_id matches current phase
-    return pipelineDetail.phases
-      .filter((phase) => phase.previous_phase_id === phaseDetail.id)
-      .sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      );
-  }, [pipelineDetail?.phases, phaseDetail]);
 
   if (!phaseDetail) {
     return (
@@ -113,28 +103,22 @@ export default function PipelinePhasePage() {
 
       {/* Parent Phase Details */}
       <PhaseDetailCard
-        phase={phaseDetail}
+        ignoreRefetch={true}
+        phaseId={phaseId}
         labelConfig={pipelineDetail?.label_config?.id2label}
       />
 
       {/* Child Phases */}
-      {childPhases.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">
-            Child Phases ({childPhases.length})
-          </h2>
-          <div className="space-y-3">
-            {childPhases.map((childPhase, index) => (
-              <PhaseDetailCard
-                key={childPhase.id}
-                phase={childPhase}
-                labelConfig={pipelineDetail?.label_config?.id2label}
-                phaseNumber={index + 1}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {phaseDetail.child_phases &&
+        phaseDetail.child_phases.length > 0 &&
+        phaseDetail.child_phases.map((childPhase) => (
+          <PhaseDetailCard
+            key={childPhase.id}
+            phaseId={childPhase.id}
+            labelConfig={pipelineDetail?.label_config.id2label}
+            ignoreRefetch={false}
+          />
+        ))}
     </div>
   );
 }

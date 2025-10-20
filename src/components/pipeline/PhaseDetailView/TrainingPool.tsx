@@ -5,7 +5,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Database } from "lucide-react";
 import { useState } from "react";
-import { GenerationSection } from "./GenerationSection";
 import { DatasetView } from "@/components/pipeline/DatasetView";
 import { useFetchTrainingPoolData } from "@/hooks/pipeline/useFetchTrainingPoolData";
 import { PhaseDetail } from "@/schema/schema_v2";
@@ -56,7 +55,8 @@ export const TrainingPool: React.FC<TrainingPoolProps> = ({
             <div className="text-center text-muted-foreground py-8">
               Loading training pool data...
             </div>
-          ) : trainingPoolData?.samples && trainingPoolData.samples.length > 0 ? (
+          ) : trainingPoolData?.samples &&
+            trainingPoolData.samples.length > 0 ? (
             <DatasetView
               samples={trainingPoolData.samples}
               labelConfig={labelConfig}
@@ -66,9 +66,7 @@ export const TrainingPool: React.FC<TrainingPoolProps> = ({
               No training pool data available
             </div>
           )
-        ) : (
-          <GenerationSection composalDatasets={composalDatasets} />
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );

@@ -7,6 +7,6 @@ export const useFetchPhaseDatasetStatus = (phaseId: string) => {
     return useQuery({
         queryKey: [PHASE_DATASET_STATUS_QUERY_KEY, phaseId],
         queryFn: () => pipelineService.getPhaseGenerationStatus(phaseId),
-        refetchInterval: 4000, // Refetch every 4 seconds
+        refetchInterval: 10000, // Refetch every 4 seconds
     })
 }
