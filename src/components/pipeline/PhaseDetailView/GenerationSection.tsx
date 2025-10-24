@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useFetchPhaseDatasetStatus } from "@/hooks/pipeline/phase/useFetchPhaseDatasetStatus";
 import { DatasetView } from "@/components/pipeline/DatasetView";
+import { useEffect, useState } from "react";
 
 dayjs.extend(relativeTime);
 
@@ -37,7 +38,17 @@ export const GenerationSection = ({
   datasetFiles,
   labelConfig,
 }: GenerationSectionProps) => {
-  const { data: { data: generationStatus } = {}, isLoading } = useFetchPhaseDatasetStatus(phaseId);
+  const [isDone, setIsDone] = useState(false);
+  const { data: { data: generationStatus } = {}, isLoading } =
+    useFetchPhaseDatasetStatus(phaseId, {
+      isDone,
+    });
+
+  useEffect(() => {
+    if (generationStatus?.dataset_file.status === "done") {
+      setIsDone(true);
+    }
+  }, [generationStatus?.dataset_file.status]);
 
   const datasetFile = generationStatus?.dataset_file;
   const batchFiles = generationStatus?.batch_files || [];
@@ -68,7 +79,8 @@ export const GenerationSection = ({
               <Badge variant="default">Complete</Badge>
             )}
             <span className="text-xs text-muted-foreground">
-              {datasetFile.current_sample_count || datasetFile.sample_count} samples
+              {datasetFile.current_sample_count || datasetFile.sample_count}{" "}
+              samples
             </span>
           </div>
           {datasetFile.samples && datasetFile.samples.length > 0 && (
@@ -83,15 +95,21 @@ export const GenerationSection = ({
       {/* Batch Dataset Files */}
       {batchFiles.length > 0 && (
         <div className="space-y-4">
-          <h4 className="font-medium text-sm">Batch Datasets ({batchFiles.length})</h4>
-          {batchFiles.map((batch) => (
-            <div key={batch.id} className="flex items-center gap-2">
-              <h5 className="font-medium text-sm">Batch {batch.batch_number}</h5>
-              <span className="text-xs text-muted-foreground">
-                {batch.sample_count} samples
-              </span>
-            </div>
-          ))}
+          <h4 className="font-medium text-sm">
+            Batch Datasets ({batchFiles.length})
+          </h4>
+          <div className="max-h-80 overflow-y-auto space-y-4 pr-2">
+            {batchFiles.map((batch) => (
+              <div key={batch.id} className="flex items-center gap-2">
+                <h5 className="font-medium text-sm">
+                  Batch {batch.batch_number}
+                </h5>
+                <span className="text-xs text-muted-foreground">
+                  {batch.sample_count} samples
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       {/* Dataset Files - Legacy table view */}
@@ -128,7 +146,9 @@ export const GenerationSection = ({
                       {file.status === "done" && (
                         <Badge variant="default">Complete</Badge>
                       )}
-                      {!file.status && <span className="text-xs text-muted-foreground">-</span>}
+                      {!file.status && (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{file.sample_count}</Badge>

@@ -5,8 +5,18 @@ import { PipelineDetail } from "@/schema/schema_v2";
 import { PipelineOverview } from "@/components/pipeline/PipelineOverview/PipelineOverview";
 import { ExperimentsList } from "@/components/pipeline/ExperimentsList";
 import { DatasetView } from "@/components/pipeline/DatasetView";
+import { ProfileListView } from "@/components/training-profile";
 import { useFetchPipelineTestSet } from "@/hooks/pipeline/useFetchPipelineTestset";
-import { ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ChevronRight, Settings2 } from "lucide-react";
 
 interface PipelineDetailViewProps {
   pipelineDetail: PipelineDetail;
@@ -16,6 +26,7 @@ export const PipelineDetailView = (props: PipelineDetailViewProps) => {
   const { pipelineDetail } = props;
   const [isDatasetOpen, setIsDatasetOpen] = useState(true);
   const [isExperimentsOpen, setIsExperimentsOpen] = useState(true);
+  const [showTrainingProfiles, setShowTrainingProfiles] = useState(false);
 
   const { data: { data: testsetDetail } = {} } = useFetchPipelineTestSet(
     pipelineDetail.id
@@ -26,9 +37,33 @@ export const PipelineDetailView = (props: PipelineDetailViewProps) => {
 
   return (
     <div className="space-y-4 pb-10">
-      <h1 className="mt-4 text-2xl font-bold">
-        {pipelineDetail.name || "Unnamed Pipeline"}
-      </h1>
+      <div className="flex items-center justify-between gap-4 mt-4">
+        <h1 className="text-2xl font-bold">
+          {pipelineDetail.name || "Unnamed Pipeline"}
+        </h1>
+
+        {/* Training Profiles Dialog */}
+        <Dialog open={showTrainingProfiles} onOpenChange={setShowTrainingProfiles}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Settings2 className="w-4 h-4" />
+              Training Profiles
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="!max-w-[95vw] md:!max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogHeader>
+              <DialogTitle>Training Profiles</DialogTitle>
+              <DialogDescription>
+                Manage training and LoRA configuration profiles
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto pr-2">
+              <ProfileListView />
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
       <PipelineOverview pipelineDetail={pipelineDetail} />
 
       {/* Experiments Section */}

@@ -1,16 +1,16 @@
 import { pipelineService } from "@/apis/pipeline";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const PHASE_DETAIL_QUERY_KEY = "PhaseDetail";
+export const TRAINING_PROFILES_QUERY_KEY = "TrainingProfiles";
 
 interface Options {
   ignoreRefetch?: boolean;
 }
 
-export const useFetchPhase = (phaseId: string, options: Options = {}) => {
+export const useFetchTrainingProfiles = (options: Options = {}) => {
   return useQuery({
-    queryKey: [PHASE_DETAIL_QUERY_KEY, phaseId],
-    queryFn: () => pipelineService.getPhase(phaseId),
+    queryKey: [TRAINING_PROFILES_QUERY_KEY],
+    queryFn: () => pipelineService.listTrainingProfiles(),
     ...(options
       ? {
           enabled: !options.ignoreRefetch,
@@ -19,12 +19,12 @@ export const useFetchPhase = (phaseId: string, options: Options = {}) => {
   });
 };
 
-export const useInvalidatePhase = () => {
+export const useInvalidateTrainingProfiles = () => {
   const queryClient = useQueryClient();
 
-  return (phaseId: string) => {
+  return () => {
     queryClient.invalidateQueries({
-      queryKey: [PHASE_DETAIL_QUERY_KEY, phaseId],
+      queryKey: [TRAINING_PROFILES_QUERY_KEY],
     });
   };
 };

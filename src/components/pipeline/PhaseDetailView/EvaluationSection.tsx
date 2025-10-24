@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/tooltip";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import React from "react";
+import React, { useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 dayjs.extend(relativeTime);
 
@@ -104,6 +105,8 @@ export const EvaluationSection = ({
   trainedModels,
   labelConfig,
 }: EvaluationSectionProps) => {
+  const [showLowConfidence, setShowLowConfidence] = useState(false);
+
   const hasEvaluations = trainedModels?.some(
     (m) => m.evaluation_results?.length > 0
   );
@@ -123,6 +126,41 @@ export const EvaluationSection = ({
           model.evaluation_results &&
           model.evaluation_results.length > 0 && (
             <div key={model.id} className="space-y-3">
+              {/* Model Information Header */}
+              <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        {model.model_name}
+                      </h3>
+                      <Badge
+                        variant={model.status === "completed" ? "default" : "secondary"}
+                        className="capitalize"
+                      >
+                        {model.status}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium">Model ID:</span>
+                        <span className="font-mono text-xs">{model.id}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-medium">Created:</span>
+                        <span>{dayjs(model.created_at).fromNow()}</span>
+                      </div>
+                      {model.completed_at && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium">Completed:</span>
+                          <span>{dayjs(model.completed_at).fromNow()}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {model.evaluation_results.map((evaluation) => (
                 <div key={evaluation.id} className="p-0">
                   {(() => {
@@ -234,9 +272,31 @@ export const EvaluationSection = ({
                                             %
                                           </TableCell>
                                           <TableCell>
-                                            <Badge variant="outline">
-                                              {labelMetric.samples}
-                                            </Badge>
+                                            <Tooltip delayDuration={300}>
+                                              <TooltipTrigger asChild>
+                                                <Badge
+                                                  variant="outline"
+                                                  className="cursor-help"
+                                                >
+                                                  {labelMetric.samples}
+                                                </Badge>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                <div className="text-xs space-y-1">
+                                                  <div className="font-semibold mb-1">Confusion Matrix:</div>
+                                                  <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+                                                    <span className="text-green-600">True Positives:</span>
+                                                    <span className="font-mono">{labelMetric.true_positives}</span>
+                                                    <span className="text-red-600">False Positives:</span>
+                                                    <span className="font-mono">{labelMetric.false_positives}</span>
+                                                    <span className="text-green-600">True Negatives:</span>
+                                                    <span className="font-mono">{labelMetric.true_negatives}</span>
+                                                    <span className="text-red-600">False Negatives:</span>
+                                                    <span className="font-mono">{labelMetric.false_negatives}</span>
+                                                  </div>
+                                                </div>
+                                              </TooltipContent>
+                                            </Tooltip>
                                           </TableCell>
                                         </TableRow>
                                       );
@@ -253,20 +313,28 @@ export const EvaluationSection = ({
                         {recent_low_confidence_on_train?.samples?.length >
                           0 && (
                           <div className="space-y-3 mt-6">
-                            <DatasetView<LowConfidentSample>
-                              samples={recent_low_confidence_on_train.samples}
-                              customColumns={createLowConfidenceColumns()}
-                              enableSearch={true}
-                              searchPlaceholder="Search text..."
-                              headTitle={
-                                <h5 className="font-medium text-sm text-amber-600 flex items-center gap-2">
-                                  Low Confidence Predictions
-                                  <Badge variant="outline">
-                                    {recent_low_confidence_on_train.count}
-                                  </Badge>
-                                </h5>
-                              }
-                            />
+                            <button
+                              onClick={() => setShowLowConfidence(!showLowConfidence)}
+                              className="flex items-center gap-2 text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors"
+                            >
+                              {showLowConfidence ? (
+                                <ChevronDown className="w-4 h-4" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4" />
+                              )}
+                              Low Confidence Predictions
+                              <Badge variant="outline">
+                                {recent_low_confidence_on_train.count}
+                              </Badge>
+                            </button>
+                            {showLowConfidence && (
+                              <DatasetView<LowConfidentSample>
+                                samples={recent_low_confidence_on_train.samples}
+                                customColumns={createLowConfidenceColumns()}
+                                enableSearch={true}
+                                searchPlaceholder="Search text..."
+                              />
+                            )}
                           </div>
                         )}
                       </>

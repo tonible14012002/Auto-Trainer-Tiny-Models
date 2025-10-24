@@ -4,6 +4,7 @@ import { PipelinePhaseParams } from "@/constants/routes";
 import { useFetchPhase } from "@/hooks/pipeline/phase/useFetchPhase";
 import { useFetchPipeline } from "@/hooks/pipeline/useFetchPipeline";
 import { useFetchPipelineTestSet } from "@/hooks/pipeline/useFetchPipelineTestset";
+import { useContinueGeneration } from "@/hooks/pipeline/phase/useContinueGeneration";
 import { useParams } from "next/navigation";
 import {
   PhaseDetailCard,
@@ -11,6 +12,7 @@ import {
 } from "@/components/pipeline/PhaseDetailView";
 import { DatasetView } from "@/components/pipeline/DatasetView";
 import { LabelInfoDialog } from "@/components/pipeline/LabelInfoDialog/LabelInfoDialog";
+import { ProfileListView } from "@/components/training-profile";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,17 +22,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tags, TestTube } from "lucide-react";
+import { Tags, TestTube, Play, Settings2 } from "lucide-react";
 import { useState } from "react";
 
 export default function PipelinePhasePage() {
   const { pipelineId, phaseId } = useParams<PipelinePhaseParams>();
   const { data: { data: pipelineDetail } = {} } = useFetchPipeline(pipelineId);
-  const { data: { data: phaseDetail } = {} } = useFetchPhase(phaseId);
+  const { data: { data: phaseDetail } = {}, refetch: refetchParentPhase } = useFetchPhase(phaseId);
   const { data: { data: testsetDetail } = {} } =
     useFetchPipelineTestSet(pipelineId);
 
   const [showTestDataset, setShowTestDataset] = useState(false);
+  const [showTrainingProfiles, setShowTrainingProfiles] = useState(false);
+  const continueGeneration = useContinueGeneration();
 
   if (!phaseDetail) {
     return (
@@ -91,6 +95,27 @@ export default function PipelinePhasePage() {
               </DialogContent>
             </Dialog>
           )}
+
+          {/* Training Profiles Dialog */}
+          <Dialog open={showTrainingProfiles} onOpenChange={setShowTrainingProfiles}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Settings2 className="w-4 h-4" />
+                Training Profiles
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="!max-w-[95vw] md:!max-w-7xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+              <DialogHeader>
+                <DialogTitle>Training Profiles</DialogTitle>
+                <DialogDescription>
+                  Manage training and LoRA configuration profiles
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-y-auto pr-2">
+                <ProfileListView />
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -117,8 +142,34 @@ export default function PipelinePhasePage() {
             phaseId={childPhase.id}
             labelConfig={pipelineDetail?.label_config.id2label}
             ignoreRefetch={false}
+            phaseNumber={childPhase.phase_number}
           />
         ))}
+
+      {/* Run New Phase Button */}
+      <div className="flex justify-center pt-4">
+        <Button
+          variant="default"
+          size="lg"
+          className="gap-2"
+          onClick={() => {
+            // Get the latest previous phase - either the last child phase or the current phase
+            const latestPhaseId =
+              phaseDetail.child_phases && phaseDetail.child_phases.length > 0
+                ? phaseDetail.child_phases[phaseDetail.child_phases.length - 1].id
+                : phaseId;
+
+            continueGeneration.mutate({ phaseId: latestPhaseId });
+            setTimeout(() => {
+              refetchParentPhase()
+            }, 2000)
+          }}
+          disabled={continueGeneration.isPending}
+        >
+          <Play className="w-4 h-4" />
+          {continueGeneration.isPending ? "Starting..." : "Run New Phase"}
+        </Button>
+      </div>
     </div>
   );
 }

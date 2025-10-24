@@ -1,45 +1,97 @@
 "use client";
 
-import { TrainedModelInfo } from "@/schema/schema_v2";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock } from "lucide-react";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-
-dayjs.extend(relativeTime);
+import { useState } from "react";
+import { TrainedModelInfo as TrainedModelInfoType, TrainModelRequest } from "@/schema/schema_v2";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Play } from "lucide-react";
+import { useEvaluatePhase } from "@/hooks/pipeline/phase/useEvaluatePhase";
+import { useTrainModel } from "@/hooks/pipeline/phase/useTrainModel";
+import { useInvalidatePhase } from "@/hooks/pipeline/phase/useFetchPhase";
+import { StartTrainForm } from "@/components/training-profile";
+import { TrainedModelInfo } from "./TrainedModelInfo";
 
 interface TrainingSectionProps {
-  trainedModels?: TrainedModelInfo[];
+  phaseId: string;
+  pipelineId: string;
+  trainedModels?: TrainedModelInfoType[];
+  previousPhaseId?: string;
 }
 
-const formatDate = (date: string) => {
-  try {
-    return dayjs(date).fromNow();
-  } catch {
-    return date;
-  }
-};
+export const TrainingSection = ({
+  phaseId,
+  pipelineId,
+  trainedModels,
+  previousPhaseId,
+}: TrainingSectionProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { mutate: evaluatePhase, isPending } = useEvaluatePhase();
+  const invalidatePhase = useInvalidatePhase();
 
-const getStatusBadge = (status: string) => {
-  const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-    completed: "default",
-    running: "secondary",
-    failed: "destructive",
-    pending: "outline",
+  const { mutate: trainModel, isPending: isTraining, error } = useTrainModel();
+
+  const handleEvaluate = (trainedModelId: string) => {
+    evaluatePhase({
+      phaseId,
+      request: {
+        trained_model_id: trainedModelId,
+        confidence_thresholds: 0.5,
+      },
+    });
   };
-  return (
-    <Badge variant={variants[status] || "outline"}>
-      {status}
-    </Badge>
-  );
-};
 
-export const TrainingSection = ({ trainedModels }: TrainingSectionProps) => {
+  const handleStartTraining = (request: TrainModelRequest) => {
+    trainModel(request, {
+      onSuccess: () => {
+        invalidatePhase(phaseId);
+        setIsDialogOpen(false);
+      },
+    });
+  };
+
   if (!trainedModels || trainedModels.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground text-sm">
-        No trained models available
+      <div className="space-y-4">
+        <div className="text-center py-4 text-muted-foreground text-sm">
+          No trained models available
+        </div>
+        <div className="flex flex-wrap gap-2 justify-center">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="gap-2">
+                <Play className="w-4 h-4" />
+                Start Training
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Configure Model Training</DialogTitle>
+                <DialogDescription>
+                  Select training mode and configuration profile to start training
+                </DialogDescription>
+              </DialogHeader>
+              <StartTrainForm
+                phaseId={phaseId}
+                onSubmit={handleStartTraining}
+                onCancel={() => setIsDialogOpen(false)}
+                isLoading={isTraining}
+                error={error?.message}
+                previousPhaseId={previousPhaseId}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     );
   }
@@ -48,48 +100,44 @@ export const TrainingSection = ({ trainedModels }: TrainingSectionProps) => {
     <div className="space-y-4">
       {trainedModels.map((model) => (
         <Card key={model.id} className="p-4 gap-0 rounded-sm shadow-none">
-          <CardHeader className="px-0">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-              <CardTitle className="text-sm">{model.model_name}</CardTitle>
-              {getStatusBadge(model.status)}
-            </div>
-            <CardDescription className="flex items-center gap-2 text-xs">
-              <Calendar className="w-3 h-3" />
-              Created {formatDate(model.created_at)}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Model Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Model Path:</span>
-                  <code className="block text-xs bg-muted px-2 py-1 rounded mt-1 truncate">
-                    {model.model_save_path}
-                  </code>
-                </div>
-                {model.training_time && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Training Time:</span>
-                    <span>{model.training_time}s</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Training Parameters */}
-              {model.training_params && (
-                <div className="space-y-2">
-                  <h5 className="font-medium text-sm">Training Parameters</h5>
-                  <div className="bg-muted rounded p-3 text-xs overflow-x-auto">
-                    <pre>{JSON.stringify(model.training_params, null, 2)}</pre>
-                  </div>
-                </div>
-              )}
-            </div>
+          <CardContent className="px-0">
+            <TrainedModelInfo
+              model={model}
+              pipelineId={pipelineId}
+              onEvaluate={handleEvaluate}
+              isEvaluating={isPending}
+            />
           </CardContent>
         </Card>
       ))}
+
+      {/* Show training button to add more models */}
+      <div className="flex flex-wrap gap-2 justify-center pt-4 border-t">
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" variant="outline" className="gap-2">
+              <Play className="w-4 h-4" />
+              Train New Model
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Configure Model Training</DialogTitle>
+              <DialogDescription>
+                Select training mode and configuration profile to start training
+              </DialogDescription>
+            </DialogHeader>
+            <StartTrainForm
+              phaseId={phaseId}
+              onSubmit={handleStartTraining}
+              onCancel={() => setIsDialogOpen(false)}
+              isLoading={isTraining}
+              error={error?.message}
+              previousPhaseId={previousPhaseId}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

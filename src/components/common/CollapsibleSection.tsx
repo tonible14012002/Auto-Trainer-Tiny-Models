@@ -41,7 +41,7 @@ interface CollapsibleSectionProps {
 export const CollapsibleSection = ({
   header,
   children,
-  defaultOpen = true,
+  defaultOpen = false,
   chevronSize = 14,
   headerClassName = "",
   contentClassName = "",

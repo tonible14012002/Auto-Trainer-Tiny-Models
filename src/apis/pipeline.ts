@@ -2,7 +2,20 @@ import { AI_SERVICE_API_KEY } from "@/constants/envs";
 import { Client } from "@/lib/client";
 import fetcher from "@/lib/fetcher";
 import { ResponseWithData } from "@/schema/response";
-import { PhaseDetail, PhaseGenerationStatus, PipelineDetail, TestsetDetail } from "@/schema/schema_v2";
+import {
+    CreateTrainingProfileRequest,
+    EvaluatePhaseRequest,
+    InferenceRequest,
+    InferenceResponse,
+    PhaseDetail,
+    PhaseGenerationStatus,
+    PipelineDetail,
+    TestsetDetail,
+    TrainModelEvaluation,
+    TrainModelRequest,
+    TrainingProfile,
+    UpdateTrainingProfileRequest
+} from "@/schema/schema_v2";
 
 class PipelineService extends Client {
     listPipelines() {
@@ -54,6 +67,129 @@ class PipelineService extends Client {
             `${this.baseUrl}/v2/workflow/phase/${phaseId}/generation-status`,
             {
                 headers: this.privateHeaders,
+            }
+        )
+    }
+
+    evaluatePhase(phaseId: string, input: EvaluatePhaseRequest) {
+        return fetcher<ResponseWithData<TrainModelEvaluation>>(
+            `${this.baseUrl}/v2/workflow/phase/${phaseId}/evaluate`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+                body: JSON.stringify(input),
+            }
+        )
+    }
+
+    continueGeneration(phaseId: string) {
+        return fetcher<ResponseWithData<any>>(
+            `${this.baseUrl}/v2/workflow/phase/${phaseId}/continue-gen`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    trainModel(request: TrainModelRequest) {
+        return fetcher<ResponseWithData<any>>(
+            `${this.baseUrl}/v2/workflow/phase/${request.phase_id}/train`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+                body: JSON.stringify({
+                    ...(request.training_argument_profile_id && {
+                        training_argument_profile_id: request.training_argument_profile_id
+                    }),
+                    ...(request.train_mode && {
+                        train_mode: request.train_mode
+                    }),
+                }),
+            }
+        )
+    }
+
+    // Deprecated: Use trainModel with train_mode instead
+    continualTrainModel(phaseId: string) {
+        return fetcher<ResponseWithData<any>>(
+            `${this.baseUrl}/v2/workflow/phase/${phaseId}/continual-train`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    // Training Profile endpoints
+
+    createTrainingProfile(input: CreateTrainingProfileRequest) {
+        return fetcher<ResponseWithData<TrainingProfile>>(
+            `${this.baseUrl}/v2/workflow/training-profile`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+                body: JSON.stringify(input),
+            }
+        )
+    }
+
+    listTrainingProfiles() {
+        return fetcher<ResponseWithData<TrainingProfile[]>>(
+            `${this.baseUrl}/v2/workflow/training-profiles`,
+            {
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    getTrainingProfile(profileId: string) {
+        return fetcher<ResponseWithData<TrainingProfile>>(
+            `${this.baseUrl}/v2/workflow/training-profile/${profileId}`,
+            {
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    getTrainingProfileByName(profileName: string) {
+        return fetcher<ResponseWithData<TrainingProfile>>(
+            `${this.baseUrl}/v2/workflow/training-profile/name/${profileName}`,
+            {
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    updateTrainingProfile(profileId: string, input: UpdateTrainingProfileRequest) {
+        return fetcher<ResponseWithData<TrainingProfile>>(
+            `${this.baseUrl}/v2/workflow/training-profile/${profileId}`,
+            {
+                method: "PUT",
+                headers: this.privateHeaders,
+                body: JSON.stringify(input),
+            }
+        )
+    }
+
+    deleteTrainingProfile(profileId: string) {
+        return fetcher<ResponseWithData<{ message: string }>>(
+            `${this.baseUrl}/v2/workflow/training-profile/${profileId}`,
+            {
+                method: "DELETE",
+                headers: this.privateHeaders,
+            }
+        )
+    }
+
+    // Inference endpoint
+    runInference(request: InferenceRequest) {
+        return fetcher<InferenceResponse>(
+            `${this.baseUrl}/v2/workflow/inference`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+                body: JSON.stringify(request),
             }
         )
     }

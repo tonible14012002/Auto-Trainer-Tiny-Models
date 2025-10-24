@@ -15,6 +15,7 @@ import { EvaluationSection } from "./EvaluationSection";
 import { GenerationSection } from "./GenerationSection";
 import { CollapsibleSection } from "@/components/common/CollapsibleSection";
 import { useFetchPhase } from "@/hooks/pipeline/phase/useFetchPhase";
+import { getPreviousPhaseId } from "@/utils/phase";
 
 dayjs.extend(relativeTime);
 
@@ -91,7 +92,6 @@ export const PhaseDetailCard = ({
               {getStatusBadge(phase.status)}
             </>
           }
-          defaultOpen={true}
           chevronSize={16}
           headerClassName="p-3"
         >
@@ -136,7 +136,6 @@ export const PhaseDetailCard = ({
                     )}
                   </>
                 }
-                defaultOpen={true}
                 headerClassName="p-3 group"
               >
                 <div className="p-3 border-t bg-accent/50">
@@ -191,12 +190,16 @@ export const PhaseDetailCard = ({
                       )}
                   </>
                 }
-                defaultOpen={true}
                 headerClassName="p-3 group"
                 maxHeight="2000px"
               >
                 <div className="p-3 border-t bg-accent/50">
-                  <TrainingSection trainedModels={phase.trained_models} />
+                  <TrainingSection
+                    phaseId={phase.id}
+                    pipelineId={phase.pipeline_id}
+                    trainedModels={phase.trained_models}
+                    previousPhaseId={getPreviousPhaseId(phase.phase_path)}
+                  />
                 </div>
               </CollapsibleSection>
             </div>
@@ -244,7 +247,6 @@ export const PhaseDetailCard = ({
                       )}
                   </>
                 }
-                defaultOpen={true}
                 headerClassName="p-3 group"
                 maxHeight="4000px"
               >

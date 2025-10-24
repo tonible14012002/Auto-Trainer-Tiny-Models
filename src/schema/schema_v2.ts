@@ -22,9 +22,9 @@ export type PhaseDetail = {
   phase_path: string;
   checkpoint_path: string | null;
   created_at: string;
-  previous_phase_id: string | null;
   checkpoint_id: string | null;
   status: string;
+  phase_number: number;
   completed_at: number | null;
   composal_datasets?: BaseDatasetDetail[];
   dataset_files?: DatasetFileDetail[];
@@ -93,6 +93,7 @@ export interface PhaseGenerationStatus {
 export interface TrainedModelInfo {
   phase_id: string;
   model_name: string;
+  model_type: "FROM_SCRATCH" | "CONTINUAL";
   training_time: any;
   training_params: any;
   created_at: string;
@@ -102,6 +103,7 @@ export interface TrainedModelInfo {
   status: string;
   completed_at: any;
   evaluation_results: TrainModelEvaluation[];
+  training_argument_profile: TrainingProfile | null;
 }
 
 export interface TrainModelEvaluation {
@@ -145,4 +147,92 @@ export interface LowConfidentSample {
   predicted_label: string;
   probability: number;
   all_probs: Record<string, number>;
+}
+
+export interface EvaluatePhaseRequest {
+  trained_model_id: string;
+  confidence_thresholds: number;
+}
+
+export interface TrainModelRequest {
+  phase_id: string;
+  training_argument_profile_id?: string;
+  train_mode?: "FROM_SCRATCH" | "CONTINUAL";
+}
+
+export interface InferenceRequest {
+  model_path: string;
+  texts: string[];
+  pipeline_id: string;
+}
+
+export interface InferencePrediction {
+  text: string;
+  label: string;
+  probability: number;
+  all_probabilities: Record<string, number>;
+}
+
+export interface InferenceModelInfo {
+  model_path: string;
+  labels: Record<string, string>;
+  total_predictions: number;
+}
+
+export interface InferenceResponse {
+  message: string;
+  predictions: InferencePrediction[];
+  model_info: InferenceModelInfo;
+}
+
+// Training Profile schemas
+
+export interface TrainingConfig {
+  learning_rate?: number;
+  per_device_train_batch_size?: number;
+  per_device_eval_batch_size?: number;
+  gradient_accumulation_steps?: number;
+  num_train_epochs?: number;
+  warmup_ratio?: number;
+  weight_decay?: number;
+  max_grad_norm?: number;
+  logging_steps?: number;
+  save_steps?: number;
+  eval_steps?: number;
+  save_strategy?: string;
+  eval_strategy?: string;
+  seed?: number;
+  [key: string]: any; // Allow additional training arguments
+}
+
+export interface LoraConfig {
+  r: number; // 1-256
+  lora_alpha: number; // 1-256
+  lora_dropout: number; // 0.0-1.0
+  bias: "none" | "all" | "lora_only";
+  target_modules: string[];
+}
+
+export interface TrainingProfile {
+  id: string;
+  name: string;
+  description?: string;
+  training_config: TrainingConfig;
+  lora_config: LoraConfig;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTrainingProfileRequest {
+  name: string;
+  description?: string;
+  training_config: TrainingConfig;
+  lora_config: LoraConfig;
+}
+
+export interface UpdateTrainingProfileRequest {
+  name?: string;
+  description?: string;
+  training_config?: TrainingConfig;
+  lora_config?: LoraConfig;
 }
