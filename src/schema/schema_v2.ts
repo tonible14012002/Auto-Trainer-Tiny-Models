@@ -166,6 +166,10 @@ export interface InferenceRequest {
   pipeline_id: string;
 }
 
+export interface DeleteModelRequest {
+  model_id: string;
+}
+
 export interface InferencePrediction {
   text: string;
   label: string;
@@ -235,4 +239,8 @@ export interface UpdateTrainingProfileRequest {
   description?: string;
   training_config?: TrainingConfig;
   lora_config?: LoraConfig;
+}
+
+export interface FirstGenRequest {
+  pipeline_id: string;
 }

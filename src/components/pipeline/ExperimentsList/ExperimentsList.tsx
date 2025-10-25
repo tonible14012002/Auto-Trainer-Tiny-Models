@@ -11,12 +11,16 @@ import {
   Loader2,
   Calendar,
   Clock,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
+import { useFirstGen } from "@/hooks/pipeline/phase/useFirstGen";
 
 interface ExperimentsListProps {
   phases: PhaseDetail[];
+  pipelineId: string;
+  refetch: () => void;
 }
 
 // Get status badge styling
@@ -64,14 +68,47 @@ const formatDate = (dateString: string) => {
   return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 };
 
-export const ExperimentsList: React.FC<ExperimentsListProps> = ({ phases }) => {
+export const ExperimentsList: React.FC<ExperimentsListProps> = ({ phases, pipelineId, refetch }) => {
   // Filter phases with phase_number = 0 (initial phases representing separate runs)
   const experiments = phases.filter((phase) => phase.phase_path === "");
 
+  const { mutate: firstGen, isPending } = useFirstGen();
+
+  const handleFirstGen = () => {
+    firstGen({ pipelineId }, {
+      onSuccess: () => {
+        refetch();
+      },
+    });
+  };
+
   if (experiments.length === 0) {
     return (
-      <div className="border rounded-lg bg-white p-8 text-center text-muted-foreground">
-        No experiments found
+      <div className="space-y-4">
+        <div className="border rounded-lg bg-white p-8 text-center text-muted-foreground">
+          No experiments found
+        </div>
+        {/* Start First Gen Button */}
+        <div className="flex justify-center">
+          <Button
+            onClick={handleFirstGen}
+            disabled={isPending}
+            variant="default"
+            className="gap-2"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Starting Generation...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Start First Generation
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     );
   }
@@ -142,6 +179,28 @@ export const ExperimentsList: React.FC<ExperimentsListProps> = ({ phases }) => {
           </div>
         </div>
       ))}
+
+      {/* Start First Gen Button */}
+      <div className="pt-2 flex justify-center">
+        <Button
+          onClick={handleFirstGen}
+          disabled={isPending}
+          variant="default"
+          className="gap-2"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Starting Generation...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4" />
+              Start First Generation
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 };

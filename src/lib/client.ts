@@ -1,11 +1,12 @@
 
-import { API_BASE_URL } from "@/constants/envs"
+import { API_BASE_URL, API_BASE_URL_DATA_GEN } from "@/constants/envs"
 
 type Headers = Record<string, string>
 
 // Custom fetch client
 export class Client {
     baseUrl: string = API_BASE_URL
+    baseUrlDataGen: string = API_BASE_URL_DATA_GEN
     headers: Headers = {
         'Content-Type': 'application/json', // Default content type to json
     }

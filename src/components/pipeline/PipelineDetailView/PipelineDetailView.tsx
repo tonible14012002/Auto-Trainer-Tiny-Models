@@ -20,10 +20,11 @@ import { ChevronRight, Settings2 } from "lucide-react";
 
 interface PipelineDetailViewProps {
   pipelineDetail: PipelineDetail;
+  refetch: () => void;
 }
 
 export const PipelineDetailView = (props: PipelineDetailViewProps) => {
-  const { pipelineDetail } = props;
+  const { pipelineDetail, refetch } = props;
   const [isDatasetOpen, setIsDatasetOpen] = useState(true);
   const [isExperimentsOpen, setIsExperimentsOpen] = useState(true);
   const [showTrainingProfiles, setShowTrainingProfiles] = useState(false);
@@ -88,7 +89,11 @@ export const PipelineDetailView = (props: PipelineDetailViewProps) => {
           }`}
         >
           <div className="p-4 border-t">
-            <ExperimentsList phases={pipelineDetail.phases} />
+            <ExperimentsList
+              phases={pipelineDetail.phases}
+              pipelineId={pipelineDetail.id}
+              refetch={refetch}
+            />
           </div>
         </div>
       </div>

@@ -12,6 +12,7 @@ export default function PipelineDetailPage() {
     data: { data: pipelineDetail } = {},
     isLoading,
     error,
+    refetch,
   } = useFetchPipeline(pipelineId);
 
   if (isLoading) {
@@ -42,6 +43,6 @@ export default function PipelineDetailPage() {
     );
   }
 
-  return <PipelineDetailView pipelineDetail={pipelineDetail}/>
+  return <PipelineDetailView pipelineDetail={pipelineDetail} refetch={refetch} />
 };
 

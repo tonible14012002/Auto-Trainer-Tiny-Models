@@ -27,6 +27,7 @@ interface TrainingSectionProps {
   pipelineId: string;
   trainedModels?: TrainedModelInfoType[];
   previousPhaseId?: string;
+  refetchPhase: () => void;
 }
 
 export const TrainingSection = ({
@@ -34,6 +35,7 @@ export const TrainingSection = ({
   pipelineId,
   trainedModels,
   previousPhaseId,
+  refetchPhase,
 }: TrainingSectionProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { mutate: evaluatePhase, isPending } = useEvaluatePhase();
@@ -106,6 +108,7 @@ export const TrainingSection = ({
               pipelineId={pipelineId}
               onEvaluate={handleEvaluate}
               isEvaluating={isPending}
+              onDelete={refetchPhase}
             />
           </CardContent>
         </Card>

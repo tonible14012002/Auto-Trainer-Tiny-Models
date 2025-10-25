@@ -14,18 +14,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   AlertCircle,
   Loader2,
   Play,
   Sparkles,
-  TrendingUp,
 } from "lucide-react";
 import { useRunInference } from "@/hooks/pipeline/phase/useRunInference";
 import { InferencePrediction } from "@/schema/schema_v2";
@@ -179,81 +171,44 @@ export function InferenceDialog({
         {/* Results Section */}
         {results && results.length > 0 && (
           <div className="space-y-3 pt-4 border-t">
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-sm flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Results ({results.length})
-              </h4>
-            </div>
+            <h4 className="font-semibold text-sm">
+              Results ({results.length})
+            </h4>
 
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
               {results.map((result, index) => (
-                <Card key={index} className="shadow-sm">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-sm font-medium">
+                <div key={index} className="border rounded-lg p-2 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">
                         Text {index + 1}
-                      </CardTitle>
-                      <Badge className="shrink-0">
-                        {result.label}
-                      </Badge>
-                    </div>
-                    <CardDescription className="text-sm">
-                      {result.text}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Confidence:
-                        </span>
-                        <span className="font-medium">
-                          {(result.probability * 100).toFixed(2)}%
-                        </span>
                       </div>
-
-                      {/* All Probabilities */}
-                      <div className="space-y-1.5">
-                        <p className="text-xs text-muted-foreground">
-                          All Probabilities:
-                        </p>
-                        <div className="space-y-1">
-                          {Object.entries(result.all_probabilities)
-                            .sort(([, a], [, b]) => b - a)
-                            .map(([label, prob]) => (
-                              <div
-                                key={label}
-                                className="flex items-center gap-2"
-                              >
-                                <Badge
-                                  variant={
-                                    label === result.label
-                                      ? "default"
-                                      : "outline"
-                                  }
-                                  className="w-24 justify-center text-xs"
-                                >
-                                  {label}
-                                </Badge>
-                                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full bg-primary transition-all"
-                                    style={{
-                                      width: `${prob * 100}%`,
-                                    }}
-                                  />
-                                </div>
-                                <span className="text-xs text-muted-foreground w-12 text-right">
-                                  {(prob * 100).toFixed(1)}%
-                                </span>
-                              </div>
-                            ))}
+                      <div className="text-sm break-words">
+                        {result.text}
+                      </div>
+                    </div>
+                    <Badge className="shrink-0">
+                      {result.label}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1 pt-1 border-t">
+                    {Object.entries(result.all_probabilities)
+                      .sort(([, a], [, b]) => b - a)
+                      .map(([label, prob]) => (
+                        <div
+                          key={label}
+                          className="flex items-center justify-between text-sm"
+                        >
+                          <span className={label === result.label ? "font-medium" : "text-muted-foreground"}>
+                            {label}
+                          </span>
+                          <span className={label === result.label ? "font-semibold" : "text-muted-foreground"}>
+                            {(prob * 100).toFixed(2)}%
+                          </span>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>

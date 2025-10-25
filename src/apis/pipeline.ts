@@ -4,7 +4,9 @@ import fetcher from "@/lib/fetcher";
 import { ResponseWithData } from "@/schema/response";
 import {
     CreateTrainingProfileRequest,
+    DeleteModelRequest,
     EvaluatePhaseRequest,
+    FirstGenRequest,
     InferenceRequest,
     InferenceResponse,
     PhaseDetail,
@@ -84,10 +86,23 @@ class PipelineService extends Client {
 
     continueGeneration(phaseId: string) {
         return fetcher<ResponseWithData<any>>(
-            `${this.baseUrl}/v2/workflow/phase/${phaseId}/continue-gen`,
+            `${this.baseUrlDataGen}/v2/workflow/phase/${phaseId}/continue-gen`,
             {
                 method: "POST",
                 headers: this.privateHeaders,
+            }
+        )
+    }
+
+    firstGen(request: FirstGenRequest) {
+        return fetcher<ResponseWithData<any>>(
+            `${this.baseUrlDataGen}/v2/workflow/phase/first-gen`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+                body: JSON.stringify({
+                    pipeline_id: request.pipeline_id,
+                }),
             }
         )
     }
@@ -186,6 +201,36 @@ class PipelineService extends Client {
     runInference(request: InferenceRequest) {
         return fetcher<InferenceResponse>(
             `${this.baseUrl}/v2/workflow/inference`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+                body: JSON.stringify(request),
+            }
+        )
+    }
+
+    // Convert model to ONNX and download as zip
+    async convertToOnnx(modelPath: string): Promise<Blob> {
+        const response = await fetch(
+            `${this.baseUrl}/v2/workflow/convert-to-onnx`,
+            {
+                method: "POST",
+                headers: this.privateHeaders,
+                body: JSON.stringify({ model_path: modelPath }),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Failed to convert model: ${response.statusText}`);
+        }
+
+        return response.blob();
+    }
+
+    // Delete trained model
+    deleteModel(request: DeleteModelRequest) {
+        return fetcher<ResponseWithData<{ message: string }>>(
+            `${this.baseUrl}/v2/workflow/delete-model`,
             {
                 method: "POST",
                 headers: this.privateHeaders,

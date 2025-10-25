@@ -70,7 +70,7 @@ export const PhaseDetailCard = ({
   phaseNumber,
   ignoreRefetch,
 }: PhaseDetailCardProps) => {
-  const { data: { data: phase } = {}, isPending } = useFetchPhase(phaseId, {
+  const { data: { data: phase } = {}, isPending, refetch } = useFetchPhase(phaseId, {
     ignoreRefetch,
   });
 
@@ -199,6 +199,7 @@ export const PhaseDetailCard = ({
                     pipelineId={phase.pipeline_id}
                     trainedModels={phase.trained_models}
                     previousPhaseId={getPreviousPhaseId(phase.phase_path)}
+                    refetchPhase={refetch}
                   />
                 </div>
               </CollapsibleSection>
